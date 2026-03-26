@@ -15,3 +15,8 @@ backend/models/*.joblib
 backend/data/raw/
 backend/.pytest_cache/
 backend/notebooks/.ipynb_checkpoints/
+backend/data/raw/
+*.csv
+__pycache__/
+*.pyc
+backend/.env

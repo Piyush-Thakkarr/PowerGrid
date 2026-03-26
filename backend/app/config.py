@@ -3,8 +3,8 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://powergrid:powergrid123@localhost:5433/powergrid"
-    database_url_sync: str = "postgresql://powergrid:powergrid123@localhost:5433/powergrid"
+    database_url: str = "postgresql+asyncpg://powergrid:powergrid123@aws-1-ap-northeast-1.pooler.supabase.com:5432/powergrid"
+    database_url_sync: str = "postgresql://powergrid:powergrid123@aws-1-ap-northeast-1.pooler.supabase.com:5432/powergrid"
 
     supabase_jwt_secret: str = "super-secret-jwt-token-with-at-least-32-characters-long"
 
