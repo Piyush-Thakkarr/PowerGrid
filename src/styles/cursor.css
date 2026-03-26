@@ -1,0 +1,136 @@
+/* Cursor */
+.cur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.cur-x {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+}
+
+.cur-x::before,
+.cur-x::after {
+  content: '';
+  position: absolute;
+  background: var(--electric);
+  transition: all .18s;
+}
+
+.cur-x::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.cur-x::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.cur-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 170, 255, .4);
+  border-radius: 50%;
+  transition: width .22s, height .22s, border-color .2s;
+}
+
+body.ch .cur-ring {
+  width: 48px;
+  height: 48px;
+  border-color: rgba(0, 170, 255, .7);
+}
+
+body.ck .cur-x::before { height: 80%; }
+body.ck .cur-x::after { width: 80%; }
+
+/* Click pulse ring */
+.click-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  border-radius: 50%;
+  border: 1.5px solid var(--electric);
+  transform: translate(-50%, -50%) scale(0);
+  animation: cring .7s cubic-bezier(.2, .8, .3, 1) forwards;
+}
+
+@keyframes cring {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: .9; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+/* Interaction hint */
+.hint {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 50;
+  font-family: 'DM Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  color: rgba(0, 170, 255, .35);
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .4rem;
+  pointer-events: none;
+  animation: fadeIn 1s 2.5s both;
+}
+
+.hint-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+@media (pointer: coarse) {
+  .cur, .hint, .emeter { display: none; }
+}
+
+.hint-ico {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(0, 170, 255, .25);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  color: rgba(0, 170, 255, .4);
+}
+
+/* Energy meter bar */
+.emeter {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 200;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--cobalt), var(--electric));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform .3s ease, opacity .3s;
+  box-shadow: 0 0 8px var(--electric);
+  opacity: 0;
+}
+
+.emeter.active { opacity: 1; }

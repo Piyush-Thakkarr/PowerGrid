@@ -1,0 +1,119 @@
+:root {
+  --bg: #000000;
+  --bg2: #050508;
+  --cobalt: #0047AB;
+  --electric: #00aaff;
+  --arc: #0066cc;
+  --sky: #82C8E5;
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.6);
+  --dim: rgba(255,255,255,0.4);
+  --line: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.brand-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #00aaff, #82C8E5);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Canvas & overlays */
+#cv {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.vg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgba(0, 0, 0, .92) 100%);
+}
+
+.scan {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: .018;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 170, 255, .6) 2px, rgba(0, 170, 255, .6) 3px);
+}
+
+/* Divider */
+.div-line {
+  position: relative;
+  z-index: 10;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 170, 255, .2), transparent);
+}
+
+/* Section base */
+section {
+  position: relative;
+  z-index: 10;
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2.8rem;
+}
+
+.stag {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: 4px;
+  color: var(--electric);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: 1.4rem;
+}
+
+.stag::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--electric);
+}
+
+.sh2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.sh2 em {
+  font-style: normal;
+  color: var(--electric);
+}
