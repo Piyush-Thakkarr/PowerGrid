@@ -12,10 +12,12 @@ const ParticleText = () => {
         let cam;
         let geo;
         let pointsMat;
+        let aborted = false;
         const canvasEl = canvasRef.current;
 
         const initParticleTitle = async () => {
             await document.fonts.ready;
+            if (aborted) return;
 
             const wrap = wrapRef.current;
             const canvas = canvasRef.current;
@@ -199,6 +201,7 @@ const ParticleText = () => {
         initParticleTitle();
 
         return () => {
+            aborted = true;
             cancelAnimationFrame(reqId);
             if (canvasEl && canvasEl._cleanup) {
                 canvasEl._cleanup();

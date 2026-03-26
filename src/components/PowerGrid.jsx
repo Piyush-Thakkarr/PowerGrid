@@ -224,8 +224,10 @@ const PowerGrid = () => {
         let t = 0, dt = 0, lastT = performance.now();
         const tmpCol = [0, 0, 0];
         let reqId;
+        let disposed = false;
 
         const loop = () => {
+            if (disposed) return;
             reqId = requestAnimationFrame(loop);
             const now = performance.now();
             dt = Math.min((now - lastT) / 1000, .05); lastT = now;
@@ -385,6 +387,7 @@ const PowerGrid = () => {
         loop();
 
         return () => {
+            disposed = true;
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mousemove', onMouseMoveParallax);
             if (onClick) window.removeEventListener('click', onClick);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 export default function AuthLayout({ children, switchText, switchLink, switchLinkText }) {
     return (
@@ -17,6 +18,11 @@ export default function AuthLayout({ children, switchText, switchLink, switchLin
 
                 <div className="auth-card">
                     <div className="auth-card-glow"></div>
+                    {!isSupabaseConfigured && (
+                        <div className="auth-error" role="alert" style={{ marginBottom: '1rem', fontSize: '.8rem' }}>
+                            Backend not connected. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file to enable authentication.
+                        </div>
+                    )}
                     {children}
                     <p className="auth-switch">
                         {switchText} <Link to={switchLink}>{switchLinkText}</Link>
