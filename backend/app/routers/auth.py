@@ -32,6 +32,19 @@ def decode_supabase_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
 
 
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Dependency: decode JWT → return User object. Used by all protected routes."""
+    payload = decode_supabase_token(credentials.credentials)
+    user_id = payload.get("sub")
+    email = payload.get("email", "")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Missing sub in token")
+    return await get_or_create_user(db, user_id, email)
+
+
 @router.get("/me", response_model=UserResponse)
 async def get_me(
     credentials: HTTPAuthorizationCredentials = Depends(security),

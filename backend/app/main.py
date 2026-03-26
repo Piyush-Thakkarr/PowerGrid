@@ -38,9 +38,19 @@ app.add_middleware(
 # Mount routers
 from app.routers.auth import router as auth_router
 from app.routers.profile import router as profile_router
+from app.routers.consumption import router as consumption_router
+from app.routers.billing import router as billing_router
+from app.routers.comparison import router as comparison_router
+from app.routers.gamification import router as gamification_router
+from app.routers.websocket import router as ws_router
 
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
+app.include_router(consumption_router, prefix="/api/consumption", tags=["consumption"])
+app.include_router(billing_router, prefix="/api/billing", tags=["billing"])
+app.include_router(comparison_router, prefix="/api/comparison", tags=["comparison"])
+app.include_router(gamification_router, prefix="/api/gamification", tags=["gamification"])
+app.include_router(ws_router, tags=["websocket"])
 
 
 @app.get("/health")
