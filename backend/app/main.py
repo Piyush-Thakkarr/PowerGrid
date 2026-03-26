@@ -1,0 +1,45 @@
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
+
+from app.config import get_settings
+from app.database import engine
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup: verify db connection
+    async with engine.begin() as conn:
+        await conn.execute(text("SELECT 1"))
+    yield
+    # shutdown: dispose engine
+    await engine.dispose()
+
+
+app = FastAPI(
+    title="PowerGrid API",
+    description="Smart Energy Dashboard — ML-powered electricity consumption analytics",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+settings = get_settings()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins.split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/health")
+async def health_check():
+    try:
+        async with engine.begin() as conn:
+            await conn.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        return {"status": "error", "database": str(e)}

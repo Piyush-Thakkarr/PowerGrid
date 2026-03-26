@@ -1,3 +1,17 @@
 node_modules
 dist
 .env
+.DS_Store
+*.local
+
+# Backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.db
+backend/test.db
+backend/models/*.pkl
+backend/models/*.h5
+backend/models/*.joblib
+backend/data/raw/
+backend/.pytest_cache/
+backend/notebooks/.ipynb_checkpoints/
