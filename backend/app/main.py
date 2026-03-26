@@ -43,6 +43,7 @@ from app.routers.billing import router as billing_router
 from app.routers.comparison import router as comparison_router
 from app.routers.gamification import router as gamification_router
 from app.routers.websocket import router as ws_router
+from app.routers.ml import router as ml_router
 
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
@@ -51,6 +52,7 @@ app.include_router(billing_router, prefix="/api/billing", tags=["billing"])
 app.include_router(comparison_router, prefix="/api/comparison", tags=["comparison"])
 app.include_router(gamification_router, prefix="/api/gamification", tags=["gamification"])
 app.include_router(ws_router, tags=["websocket"])
+app.include_router(ml_router, prefix="/api/ml", tags=["ml"])
 
 
 @app.get("/health")
