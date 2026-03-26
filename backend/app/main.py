@@ -35,6 +35,14 @@ app.add_middleware(
 )
 
 
+# Mount routers
+from app.routers.auth import router as auth_router
+from app.routers.profile import router as profile_router
+
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+app.include_router(profile_router, prefix="/api/profile", tags=["profile"])
+
+
 @app.get("/health")
 async def health_check():
     try:

@@ -3,6 +3,7 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from app.database import Base, get_db
+from app.config import get_settings
 from app.models import *  # noqa: F401,F403 — register all models with Base.metadata
 from app.main import app
 
@@ -35,6 +36,12 @@ async def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+
+# Override JWT secret for tests so we can create valid test tokens
+get_settings.cache_clear()
+import os
+os.environ["SUPABASE_JWT_SECRET"] = "test-jwt-secret-for-unit-tests-only"
+get_settings.cache_clear()  # clear lru_cache so it picks up the new env var
 
 
 @pytest.fixture
