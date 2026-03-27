@@ -17,13 +17,8 @@ security = HTTPBearer()
 
 
 def decode_token(token: str) -> dict:
-    settings = get_settings()
-    try:
-        return pyjwt.decode(token, settings.supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
-    except pyjwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except pyjwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {e}")
+    from app.routers.auth import decode_supabase_token
+    return decode_supabase_token(token)
 
 
 @router.get("", response_model=UserResponse)
