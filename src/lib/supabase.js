@@ -12,5 +12,11 @@ if (!isSupabaseConfigured) {
 
 export const supabase = createClient(
     supabaseUrl || 'http://localhost:54321',
-    supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder'
+    supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder',
+    {
+        auth: {
+            lock: false,
+            storageKey: 'sb-powergrid-auth',
+        },
+    }
 );
