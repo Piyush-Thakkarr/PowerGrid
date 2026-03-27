@@ -41,11 +41,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Admin panel at /admin
-from sqlalchemy import create_engine as create_sync_engine
-from app.admin import setup_admin
-sync_engine = create_sync_engine(settings.sync_database_url)
-setup_admin(app, sync_engine)
+# Admin panel at /admin (optional — skip if sync DB connection fails)
+try:
+    from sqlalchemy import create_engine as create_sync_engine
+    from app.admin import setup_admin
+    sync_engine = create_sync_engine(settings.sync_database_url)
+    setup_admin(app, sync_engine)
+except Exception as e:
+    print(f"⚠️ Admin panel disabled: {e}")
 
 
 # Mount routers
