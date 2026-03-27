@@ -1,0 +1,36 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-multipart==0.0.12
+
+# Database
+sqlalchemy[asyncio]==2.0.35
+asyncpg==0.30.0
+psycopg2-binary==2.9.9
+alembic==1.14.0
+
+# Auth
+pyjwt[crypto]==2.9.0
+
+# Validation
+pydantic[email]==2.9.0
+pydantic-settings==2.5.0
+
+# Data processing
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.14.1
+
+# ML (lightweight — no TensorFlow/Prophet for free tier)
+scikit-learn==1.5.2
+statsmodels==0.14.4
+joblib==1.4.2
+
+# Admin
+sqladmin==0.19.0
+
+# WebSocket
+websockets==13.0
+
+# Utilities
+python-dotenv==1.0.1
