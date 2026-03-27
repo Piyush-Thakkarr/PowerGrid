@@ -2,32 +2,39 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
 import StatCard from '../StatCard';
 
-export default function CompareTab({ comparison, user, thisMonthUnits }) {
-    // Use thisMonthUnits consistently as the "your" value everywhere
-    const yourUsage = Math.round(thisMonthUnits);
+export default function CompareTab({ comparison, loading, user }) {
+    if (loading || !comparison) {
+        return (
+            <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.3, fontFamily: "'DM Mono', monospace", fontSize: '.85rem' }}>
+                Loading comparison data...
+            </div>
+        );
+    }
+
+    const yourUsage = Math.round(comparison.yourMonthlyKwh || 0);
     const barData = [
         { label: 'You', value: yourUsage, fill: '#00aaff' },
-        { label: 'Avg Similar', value: comparison.avgSimilar, fill: '#4466ff' },
-        { label: 'Efficient (Top 10%)', value: comparison.efficient, fill: '#39FF14' },
-        { label: 'Median', value: comparison.median, fill: '#666' },
+        { label: 'State Avg', value: Math.round(comparison.stateAvgKwh || 0), fill: '#4466ff' },
+        { label: 'Similar HH', value: Math.round(comparison.similarHouseholdKwh || 0), fill: '#39FF14' },
+        { label: 'National Avg', value: Math.round(comparison.nationalAvgKwh || 0), fill: '#666' },
     ];
 
-    const householdSize = user?.householdSize || '—';
-    const state = user?.state || 'your area';
-    const diff = Math.abs(yourUsage - comparison.avgSimilar);
+    const householdSize = comparison.householdSize || user?.householdSize || '—';
+    const state = comparison.state || user?.state || 'your area';
+    const diff = Math.abs(yourUsage - Math.round(comparison.stateAvgKwh || 0));
 
     return (
         <>
             <div className="dash-page-header">
                 <h1>Compare</h1>
-                <span className="dash-page-tag">vs {comparison.totalHouseholds} similar households</span>
+                <span className="dash-page-tag">vs {comparison.totalUsers || 0} households</span>
             </div>
 
             <div className="dash-stats-grid four">
-                <StatCard label="Your Usage" value={Math.round(thisMonthUnits)} unit="kWh/mo" />
-                <StatCard label="Area Average" value={comparison.avgSimilar} unit="kWh/mo" />
-                <StatCard label="Your Rank" value={`#${comparison.yourRank}`} unit={`of ${comparison.totalHouseholds}`} />
-                <StatCard label="Percentile" value={`Top ${comparison.percentile}%`} unit="" />
+                <StatCard label="Your Usage" value={yourUsage} unit="kWh/mo" />
+                <StatCard label="State Avg" value={Math.round(comparison.stateAvgKwh || 0)} unit="kWh/mo" />
+                <StatCard label="Your Rank" value={`#${comparison.yourRank || '—'}`} unit={`of ${comparison.totalUsers || '—'}`} />
+                <StatCard label="Percentile" value={`Top ${comparison.percentile || '—'}%`} unit="" />
             </div>
 
             <div className="dash-card">
@@ -50,12 +57,12 @@ export default function CompareTab({ comparison, user, thisMonthUnits }) {
             <div className="dash-card">
                 <div className="dash-card-header"><h2>Insights</h2></div>
                 <div className="dash-insights">
-                    {thisMonthUnits > comparison.avgSimilar ? (
+                    {yourUsage > (comparison.stateAvgKwh || 0) ? (
                         <div className="dash-insight warn">
                             <span className="dash-insight-icon">⚠️</span>
                             <div>
                                 <strong>Above average</strong>
-                                <p>You're using {diff} kWh more than similar {householdSize}-person households in {state}.</p>
+                                <p>You're using {diff} kWh more than the state average for {householdSize}-person households in {state}.</p>
                             </div>
                         </div>
                     ) : (

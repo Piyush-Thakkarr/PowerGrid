@@ -1,8 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { generateConsumptionData, calculateBill, generateComparisonData, generateGamificationData } from '../lib/demoData';
+import { useConsumptionData } from '../hooks/useConsumptionData';
+import { useChartData } from '../hooks/useChartData';
+import { useBilling } from '../hooks/useBilling';
+import { useComparison } from '../hooks/useComparison';
+import { useGamification } from '../hooks/useGamification';
 import { DASHBOARD_TABS } from '../lib/constants';
+import { API_BASE } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/dashboard/Sidebar';
 import OverviewTab from '../components/dashboard/tabs/OverviewTab';
@@ -11,40 +16,56 @@ import BillingTab from '../components/dashboard/tabs/BillingTab';
 import CompareTab from '../components/dashboard/tabs/CompareTab';
 import RewardsTab from '../components/dashboard/tabs/RewardsTab';
 import ProfileTab from '../components/dashboard/tabs/ProfileTab';
+import MLTab from '../components/dashboard/tabs/MLTab';
 
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [tab, setTab] = useState('overview');
-    const [overviewChartView, setOverviewChartView] = useState('hourly');
-    const [analyticsChartView, setAnalyticsChartView] = useState('hourly');
+    const [overviewChartView, setOverviewChartView] = useState('monthly');
+    const [analyticsChartView, setAnalyticsChartView] = useState('monthly');
     const [liveWatts, setLiveWatts] = useState(0);
     const [loggingOut, setLoggingOut] = useState(false);
     const [bannerDismissed, setBannerDismissed] = useState(false);
+    const wsRef = useRef(null);
 
-    const data = useMemo(() => generateConsumptionData(user?.id), [user?.id]);
-    const thisMonthUnits = data.monthly[data.monthly.length - 1]?.units || 0;
-    const comparison = useMemo(() => generateComparisonData(user?.id, user?.householdSize, user?.state, thisMonthUnits), [user?.id, user?.householdSize, user?.state, thisMonthUnits]);
-    const gamification = useMemo(() => generateGamificationData(user?.id), [user?.id]);
+    // Fetch real data from APIs
+    const consumption = useConsumptionData();
+    const overviewChart = useChartData(overviewChartView);
+    const analyticsChart = useChartData(analyticsChartView);
+    const billing = useBilling();
+    const comparison = useComparison();
+    const gamification = useGamification();
 
-    const todayUnits = data.hourly.reduce((s, h) => s + h.units, 0);
-    const lastMonthUnits = data.monthly[data.monthly.length - 2]?.units || 0;
-    const monthChange = lastMonthUnits > 0 ? Math.round((thisMonthUnits - lastMonthUnits) / lastMonthUnits * 100) : 0;
-    const bill = calculateBill(thisMonthUnits);
-
+    // WebSocket for live watts
     useEffect(() => {
-        const tick = () => {
-            const h = new Date().getHours();
-            let base = 400;
-            if (h >= 6 && h <= 9) base = 1200;
-            else if (h >= 17 && h <= 22) base = 1800;
-            else if (h >= 10 && h <= 16) base = 700;
-            setLiveWatts(Math.round(base + (Math.random() - 0.5) * 300));
+        if (!user?.id) return;
+
+        const wsUrl = API_BASE.replace(/^http/, 'ws') + `/ws/live/${user.id}`;
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                setLiveWatts(Math.round(data.powerWatts || 0));
+            } catch { /* ignore parse errors */ }
         };
-        tick();
-        const id = setInterval(tick, 5000);
-        return () => clearInterval(id);
-    }, []);
+
+        ws.onerror = () => {
+            // Fallback to simulated data if WS fails
+            const tick = () => {
+                const h = new Date().getHours();
+                let base = h >= 17 && h <= 22 ? 1800 : h >= 6 && h <= 9 ? 1200 : h >= 10 && h <= 16 ? 700 : 400;
+                setLiveWatts(Math.round(base + (Math.random() - 0.5) * 300));
+            };
+            tick();
+            const id = setInterval(tick, 5000);
+            ws.onclose = () => clearInterval(id);
+        };
+
+        return () => { ws.close(); };
+    }, [user?.id]);
 
     const handleLogout = async () => {
         if (loggingOut) return;
@@ -58,12 +79,19 @@ export default function Dashboard() {
         navigate('/', { replace: true });
     };
 
-    const getChartData = (view) => view === 'hourly' ? data.hourly : view === 'daily' ? data.daily : data.monthly;
-    const getChartKey = (view) => view === 'hourly' ? 'time' : view === 'daily' ? 'day' : 'month';
+    // Derived values from real API data
+    const stats = consumption.stats || {};
+    const thisMonthUnits = stats.thisMonthKwh || 0;
+    const todayUnits = stats.todayKwh || 0;
+    const monthChange = stats.monthChangePercent || 0;
+    const xpData = gamification.xp || { xp: 0, level: 1 };
+
+    // Loading state
+    const isLoading = consumption.loading && billing.loading;
 
     return (
         <div className="dash-page">
-            <Sidebar tab={tab} onTabChange={setTab} user={user} level={gamification.level} onLogout={handleLogout} loggingOut={loggingOut} />
+            <Sidebar tab={tab} onTabChange={setTab} user={user} level={xpData.level} onLogout={handleLogout} loggingOut={loggingOut} />
             <main className="dash-content">
                 {!bannerDismissed && user?.provider === 'google' && user?.state === 'Gujarat' && user?.householdSize === 4 && tab !== 'profile' && (
                     <div className="dash-setup-banner" role="button" tabIndex={0} onClick={() => setTab('profile')} onKeyDown={e => e.key === 'Enter' && setTab('profile')}>
@@ -73,12 +101,13 @@ export default function Dashboard() {
                 )}
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="dash-content-inner">
-                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={todayUnits} thisMonthUnits={thisMonthUnits} monthChange={monthChange} bill={bill} gamification={gamification} chartData={getChartData(overviewChartView)} chartKey={getChartKey(overviewChartView)} chartView={overviewChartView} setChartView={setOverviewChartView} />}
-                        {tab === 'analytics' && <AnalyticsTab data={data} chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={getChartData(analyticsChartView)} chartKey={getChartKey(analyticsChartView)} />}
-                        {tab === 'billing' && <BillingTab bill={bill} thisMonthUnits={thisMonthUnits} data={data} user={user} />}
-                        {tab === 'compare' && <CompareTab comparison={comparison} user={user} thisMonthUnits={thisMonthUnits} />}
-                        {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} />}
-                        {tab === 'profile' && <ProfileTab user={user} gamification={gamification} />}
+                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={todayUnits} thisMonthUnits={thisMonthUnits} monthChange={monthChange} bill={billing.bill} gamification={xpData} chartData={overviewChart.data} chartKey={overviewChart.chartKey} chartView={overviewChartView} setChartView={setOverviewChartView} loading={overviewChart.loading} />}
+                        {tab === 'analytics' && <AnalyticsTab chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={analyticsChart.data} chartKey={analyticsChart.chartKey} loading={analyticsChart.loading} />}
+                        {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={billing.loading} user={user} />}
+                        {tab === 'compare' && <CompareTab comparison={comparison.data} loading={comparison.loading} user={user} />}
+                        {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} loading={gamification.loading} />}
+                        {tab === 'profile' && <ProfileTab user={user} gamification={xpData} />}
+                        {tab === 'ml' && <MLTab />}
                     </motion.div>
                 </AnimatePresence>
             </main>

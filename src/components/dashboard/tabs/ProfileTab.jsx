@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { INDIAN_STATES, TARIFF_OPTIONS } from '../../../lib/constants';
+import { apiFetch } from '../../../lib/api';
 
 export default function ProfileTab({ user, gamification }) {
     const { updateProfile } = useAuth();
@@ -21,12 +22,27 @@ export default function ProfileTab({ user, gamification }) {
         setSaving(true);
         setError('');
         try {
+            // Update Supabase profile
             await updateProfile({
                 name: form.name,
                 household_size: parseInt(form.householdSize),
                 state: form.state,
                 tariff_plan: form.tariffPlan,
             });
+
+            // Also sync with backend
+            try {
+                await apiFetch('/api/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: form.name,
+                        householdSize: parseInt(form.householdSize),
+                        state: form.state,
+                        tariffPlan: form.tariffPlan,
+                    }),
+                });
+            } catch { /* backend sync is best-effort */ }
+
             setEditing(false);
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
@@ -37,11 +53,13 @@ export default function ProfileTab({ user, gamification }) {
         }
     };
 
+    const level = gamification?.level || 1;
+
     return (
         <>
             <div className="dash-page-header">
                 <h1>Profile</h1>
-                <span className="dash-page-tag">Level {gamification.level}</span>
+                <span className="dash-page-tag">Level {level}</span>
             </div>
             <div className="dash-card">
                 <div className="dash-card-header">

@@ -15,5 +15,6 @@ export const DASHBOARD_TABS = [
     { id: 'billing', label: 'Billing', icon: '💰' },
     { id: 'compare', label: 'Compare', icon: '🔍' },
     { id: 'rewards', label: 'Rewards', icon: '🏆' },
+    { id: 'ml', label: 'AI Insights', icon: '🧠' },
     { id: 'profile', label: 'Profile', icon: '👤' },
 ];
