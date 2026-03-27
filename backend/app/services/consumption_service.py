@@ -8,6 +8,16 @@ from uuid import UUID
 from app.models.consumption import ConsumptionData
 
 
+async def _get_latest_date(db: AsyncSession, user_id: UUID) -> str:
+    """Get the latest data timestamp for a user — used as reference point instead of NOW()."""
+    result = await db.execute(
+        text("SELECT MAX(timestamp) FROM consumption_data WHERE user_id = :uid"),
+        {"uid": str(user_id)},
+    )
+    latest = result.scalar()
+    return latest.isoformat() if latest else datetime.now().isoformat()
+
+
 async def get_live_reading(db: AsyncSession, user_id: UUID) -> dict | None:
     """Latest reading for the real-time dashboard widget."""
     result = await db.execute(
@@ -29,9 +39,19 @@ async def get_live_reading(db: AsyncSession, user_id: UUID) -> dict | None:
     }
 
 
-async def get_hourly(db: AsyncSession, user_id: UUID, date_str: str) -> list[dict]:
-    """Hourly consumption for a specific date (24 data points)."""
-    target = datetime.strptime(date_str, "%Y-%m-%d").date()
+async def get_hourly(db: AsyncSession, user_id: UUID, date_str: str | None) -> list[dict]:
+    """Hourly consumption for a specific date (24 data points).
+    If date_str is None or has no data, uses the latest available date."""
+    if date_str and date_str != "null":
+        target = datetime.strptime(date_str, "%Y-%m-%d").date()
+    else:
+        target = None
+
+    # If no date specified or no data for the given date, use latest available
+    if target is None:
+        latest = await _get_latest_date(db, user_id)
+        target = datetime.fromisoformat(latest).date()
+
     start = datetime.combine(target, datetime.min.time())
     end = start + timedelta(days=1)
 
@@ -47,17 +67,28 @@ async def get_hourly(db: AsyncSession, user_id: UUID, date_str: str) -> list[dic
         """),
         {"uid": str(user_id), "start": start, "end": end},
     )
-    return [
+    rows = [
         {"hour": row.hour.isoformat(), "kwh": round(row.kwh, 3),
          "avgWatts": round(row.avg_watts, 1), "avgVoltage": round(row.avg_voltage, 1) if row.avg_voltage else None}
         for row in result
     ]
 
+    # If no data for this date, try latest date
+    if not rows and date_str:
+        return await get_hourly(db, user_id, None)
 
-async def get_daily(db: AsyncSession, user_id: UUID, start_date: str, end_date: str) -> list[dict]:
-    """Daily consumption between two dates."""
-    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-    end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
+    return rows
+
+
+async def get_daily(db: AsyncSession, user_id: UUID, start_date: str | None, end_date: str | None) -> list[dict]:
+    """Daily consumption between two dates. Falls back to last 7 days of data."""
+    if start_date and end_date and start_date != "null":
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)
+    else:
+        latest = await _get_latest_date(db, user_id)
+        end_dt = datetime.fromisoformat(latest) + timedelta(days=1)
+        start_dt = end_dt - timedelta(days=7)
 
     result = await db.execute(
         text("""
@@ -73,15 +104,21 @@ async def get_daily(db: AsyncSession, user_id: UUID, start_date: str, end_date: 
         """),
         {"uid": str(user_id), "start": start_dt, "end": end_dt},
     )
-    return [
+    rows = [
         {"date": row.day.strftime("%Y-%m-%d"), "kwh": round(row.kwh, 3),
          "peakWatts": round(row.peak_watts, 1), "avgWatts": round(row.avg_watts, 1)}
         for row in result
     ]
 
+    # Fallback: if date range had no data, use latest 7 days
+    if not rows and start_date:
+        return await get_daily(db, user_id, None, None)
+
+    return rows
+
 
 async def get_monthly(db: AsyncSession, user_id: UUID, months: int = 6) -> list[dict]:
-    """Monthly consumption for the last N months."""
+    """Monthly consumption for the last N months relative to latest data."""
     result = await db.execute(
         text("""
             SELECT date_trunc('month', timestamp) AS month,
@@ -90,7 +127,10 @@ async def get_monthly(db: AsyncSession, user_id: UUID, months: int = 6) -> list[
                    COUNT(*) AS readings
             FROM consumption_data
             WHERE user_id = :uid
-              AND timestamp >= NOW() - make_interval(months => :months)
+              AND timestamp >= (
+                  SELECT MAX(timestamp) - make_interval(months => :months)
+                  FROM consumption_data WHERE user_id = :uid
+              )
             GROUP BY month ORDER BY month
         """),
         {"uid": str(user_id), "months": months},
@@ -111,7 +151,10 @@ async def get_heatmap(db: AsyncSession, user_id: UUID, days: int = 30) -> list[d
                    AVG(energy_kwh) AS avg_kwh
             FROM consumption_data
             WHERE user_id = :uid
-              AND timestamp >= NOW() - make_interval(days => :days)
+              AND timestamp >= (
+                  SELECT MAX(timestamp) - make_interval(days => :days)
+                  FROM consumption_data WHERE user_id = :uid
+              )
             GROUP BY dow, hour
             ORDER BY dow, hour
         """),
@@ -124,30 +167,33 @@ async def get_heatmap(db: AsyncSession, user_id: UUID, days: int = 30) -> list[d
 
 
 async def get_stats(db: AsyncSession, user_id: UUID) -> dict:
-    """Summary stats for dashboard overview."""
+    """Summary stats — uses latest data month instead of NOW()."""
     result = await db.execute(
         text("""
-            WITH this_month AS (
+            WITH ref AS (
+                SELECT MAX(timestamp) AS latest FROM consumption_data WHERE user_id = :uid
+            ),
+            this_month AS (
                 SELECT SUM(energy_kwh) AS kwh
-                FROM consumption_data
-                WHERE user_id = :uid AND timestamp >= date_trunc('month', NOW())
+                FROM consumption_data, ref
+                WHERE user_id = :uid AND timestamp >= date_trunc('month', ref.latest)
             ),
             last_month AS (
                 SELECT SUM(energy_kwh) AS kwh
-                FROM consumption_data
+                FROM consumption_data, ref
                 WHERE user_id = :uid
-                  AND timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                  AND timestamp < date_trunc('month', NOW())
+                  AND timestamp >= date_trunc('month', ref.latest) - interval '1 month'
+                  AND timestamp < date_trunc('month', ref.latest)
             ),
             today AS (
                 SELECT SUM(energy_kwh) AS kwh
-                FROM consumption_data
-                WHERE user_id = :uid AND timestamp >= date_trunc('day', NOW())
+                FROM consumption_data, ref
+                WHERE user_id = :uid AND timestamp >= date_trunc('day', ref.latest)
             ),
             peak AS (
                 SELECT MAX(power_watts) AS watts
-                FROM consumption_data
-                WHERE user_id = :uid AND timestamp >= date_trunc('day', NOW())
+                FROM consumption_data, ref
+                WHERE user_id = :uid AND timestamp >= date_trunc('day', ref.latest)
             )
             SELECT
                 COALESCE(this_month.kwh, 0) AS this_month_kwh,

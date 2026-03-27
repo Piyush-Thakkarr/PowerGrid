@@ -6,15 +6,20 @@ from uuid import UUID
 
 
 async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
-    """Compare user's monthly consumption vs similar households and state avg."""
+    """Compare user's monthly consumption vs similar households and state avg.
+    Uses latest data month as reference instead of NOW()."""
     result = await db.execute(
         text("""
-            WITH user_monthly AS (
+            WITH ref AS (
+                SELECT date_trunc('month', MAX(timestamp)) AS latest_month
+                FROM consumption_data WHERE user_id = :uid
+            ),
+            user_monthly AS (
                 SELECT SUM(energy_kwh) AS kwh
-                FROM consumption_data
+                FROM consumption_data, ref
                 WHERE user_id = :uid
-                  AND timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                  AND timestamp < date_trunc('month', NOW())
+                  AND timestamp >= ref.latest_month - interval '1 month'
+                  AND timestamp < ref.latest_month
             ),
             user_profile AS (
                 SELECT state, household_size FROM user_profiles WHERE user_id = :uid
@@ -23,10 +28,10 @@ async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
                 SELECT AVG(monthly_kwh) AS kwh FROM (
                     SELECT cd.user_id, SUM(cd.energy_kwh) AS monthly_kwh
                     FROM consumption_data cd
-                    JOIN user_profiles up ON cd.user_id = up.user_id
+                    JOIN user_profiles up ON cd.user_id = up.user_id, ref
                     WHERE up.state = (SELECT state FROM user_profile)
-                      AND cd.timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                      AND cd.timestamp < date_trunc('month', NOW())
+                      AND cd.timestamp >= ref.latest_month - interval '1 month'
+                      AND cd.timestamp < ref.latest_month
                     GROUP BY cd.user_id
                 ) sub
             ),
@@ -34,19 +39,19 @@ async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
                 SELECT AVG(monthly_kwh) AS kwh FROM (
                     SELECT cd.user_id, SUM(cd.energy_kwh) AS monthly_kwh
                     FROM consumption_data cd
-                    JOIN user_profiles up ON cd.user_id = up.user_id
+                    JOIN user_profiles up ON cd.user_id = up.user_id, ref
                     WHERE up.household_size = (SELECT household_size FROM user_profile)
-                      AND cd.timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                      AND cd.timestamp < date_trunc('month', NOW())
+                      AND cd.timestamp >= ref.latest_month - interval '1 month'
+                      AND cd.timestamp < ref.latest_month
                     GROUP BY cd.user_id
                 ) sub
             ),
             national_avg AS (
                 SELECT AVG(monthly_kwh) AS kwh FROM (
                     SELECT user_id, SUM(energy_kwh) AS monthly_kwh
-                    FROM consumption_data
-                    WHERE timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                      AND timestamp < date_trunc('month', NOW())
+                    FROM consumption_data, ref
+                    WHERE timestamp >= ref.latest_month - interval '1 month'
+                      AND timestamp < ref.latest_month
                     GROUP BY user_id
                 ) sub
             ),
@@ -54,16 +59,16 @@ async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
                 SELECT rank FROM (
                     SELECT user_id,
                            RANK() OVER (ORDER BY SUM(energy_kwh) ASC) AS rank
-                    FROM consumption_data
-                    WHERE timestamp >= date_trunc('month', NOW()) - interval '1 month'
-                      AND timestamp < date_trunc('month', NOW())
+                    FROM consumption_data, ref
+                    WHERE timestamp >= ref.latest_month - interval '1 month'
+                      AND timestamp < ref.latest_month
                     GROUP BY user_id
                 ) ranked WHERE user_id = :uid
             ),
             total_users AS (
-                SELECT COUNT(DISTINCT user_id) AS cnt
-                FROM consumption_data
-                WHERE timestamp >= date_trunc('month', NOW()) - interval '1 month'
+                SELECT COUNT(DISTINCT cd.user_id) AS cnt
+                FROM consumption_data cd, ref
+                WHERE cd.timestamp >= ref.latest_month - interval '1 month'
             )
             SELECT
                 COALESCE(user_monthly.kwh, 0) AS user_kwh,
@@ -80,7 +85,7 @@ async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
         {"uid": str(user_id)},
     )
     row = result.one_or_none()
-    if not row:
+    if not row or row.user_kwh == 0:
         return {"error": "No data available"}
 
     percentile = max(1, round(row.user_rank / row.total_users * 100))

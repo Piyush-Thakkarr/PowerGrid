@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional
 
 from app.database import get_db
 from app.routers.auth import get_current_user
@@ -23,7 +24,7 @@ async def stats(user=Depends(get_current_user), db: AsyncSession = Depends(get_d
 
 @router.get("/hourly")
 async def hourly(
-    date: str = Query(..., description="YYYY-MM-DD"),
+    date: Optional[str] = Query(None, description="YYYY-MM-DD, defaults to latest data date"),
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -32,8 +33,8 @@ async def hourly(
 
 @router.get("/daily")
 async def daily(
-    start: str = Query(..., description="YYYY-MM-DD"),
-    end: str = Query(..., description="YYYY-MM-DD"),
+    start: Optional[str] = Query(None, description="YYYY-MM-DD"),
+    end: Optional[str] = Query(None, description="YYYY-MM-DD"),
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
