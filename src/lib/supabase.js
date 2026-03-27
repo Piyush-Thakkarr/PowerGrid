@@ -16,7 +16,6 @@ export const supabase = createClient(
     {
         auth: {
             lock: false,
-            storageKey: 'sb-powergrid-auth',
         },
     }
 );
