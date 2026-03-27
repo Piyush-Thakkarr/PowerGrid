@@ -1,6 +1,10 @@
+import os
+from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy import text
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -40,7 +44,7 @@ app.add_middleware(
 # Admin panel at /admin
 from sqlalchemy import create_engine as create_sync_engine
 from app.admin import setup_admin
-sync_engine = create_sync_engine(settings.database_url_sync)
+sync_engine = create_sync_engine(settings.sync_database_url)
 setup_admin(app, sync_engine)
 
 
@@ -72,3 +76,18 @@ async def health_check():
         return {"status": "ok", "database": "connected"}
     except Exception as e:
         return {"status": "error", "database": str(e)}
+
+
+# Serve React frontend (built static files) in production
+STATIC_DIR = Path(__file__).parent.parent / "static"
+if STATIC_DIR.exists():
+    # Serve assets (JS, CSS, images)
+    app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
+
+    # Catch-all: serve index.html for SPA routing
+    @app.get("/{path:path}")
+    async def serve_spa(path: str):
+        file_path = STATIC_DIR / path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(STATIC_DIR / "index.html"))
