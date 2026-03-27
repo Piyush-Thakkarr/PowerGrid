@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useConsumptionData } from '../hooks/useConsumptionData';
+import { useDashboardData } from '../hooks/useDashboardData';
 import { useChartData } from '../hooks/useChartData';
-import { useBilling } from '../hooks/useBilling';
-import { useComparison } from '../hooks/useComparison';
-import { useGamification } from '../hooks/useGamification';
 import { DASHBOARD_TABS } from '../lib/constants';
 import { API_BASE } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,13 +26,12 @@ export default function Dashboard() {
     const [bannerDismissed, setBannerDismissed] = useState(false);
     const wsRef = useRef(null);
 
-    // Fetch real data from APIs
-    const consumption = useConsumptionData();
+    // Single API call for all dashboard data
+    const { data: dashData, loading: dashLoading, error: dashError } = useDashboardData();
+
+    // Chart data still fetched separately (changes on user interaction)
     const overviewChart = useChartData(overviewChartView);
     const analyticsChart = useChartData(analyticsChartView);
-    const billing = useBilling();
-    const comparison = useComparison();
-    const gamification = useGamification();
 
     // WebSocket for live watts
     useEffect(() => {
@@ -47,13 +43,12 @@ export default function Dashboard() {
 
         ws.onmessage = (event) => {
             try {
-                const data = JSON.parse(event.data);
-                setLiveWatts(Math.round(data.powerWatts || 0));
+                const d = JSON.parse(event.data);
+                setLiveWatts(Math.round(d.powerWatts || 0));
             } catch { /* ignore parse errors */ }
         };
 
         ws.onerror = () => {
-            // Fallback to simulated data if WS fails
             const tick = () => {
                 const h = new Date().getHours();
                 let base = h >= 17 && h <= 22 ? 1800 : h >= 6 && h <= 9 ? 1200 : h >= 10 && h <= 16 ? 700 : 400;
@@ -79,15 +74,20 @@ export default function Dashboard() {
         navigate('/', { replace: true });
     };
 
-    // Derived values from real API data
-    const stats = consumption.stats || {};
+    // Extract data from the single API response
+    const stats = dashData?.stats || {};
     const thisMonthUnits = stats.thisMonthKwh || 0;
     const todayUnits = stats.todayKwh || 0;
     const monthChange = stats.monthChangePercent || 0;
-    const xpData = gamification.xp || { xp: 0, level: 1 };
-
-    // Loading state
-    const isLoading = consumption.loading && billing.loading;
+    const xpData = dashData?.xp || { xp: 0, level: 1 };
+    const billing = { bill: dashData?.billing || null, history: dashData?.billHistory || [] };
+    const comparison = { data: dashData?.comparison || null };
+    const gamification = {
+        xp: xpData,
+        achievements: dashData?.achievements || { achievements: [], totalUnlocked: 0, totalAvailable: 0 },
+        challenges: dashData?.challenges || [],
+        leaderboard: dashData?.leaderboard || [],
+    };
 
     return (
         <div className="dash-page">
@@ -99,13 +99,15 @@ export default function Dashboard() {
                         <button className="dash-setup-dismiss" onClick={e => { e.stopPropagation(); setBannerDismissed(true); }} aria-label="Dismiss">✕</button>
                     </div>
                 )}
+                {dashLoading && <div className="dash-loading">Loading dashboard data...</div>}
+                {dashError && <div className="dash-error">Error loading data: {dashError}</div>}
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="dash-content-inner">
                         {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={todayUnits} thisMonthUnits={thisMonthUnits} monthChange={monthChange} bill={billing.bill} gamification={xpData} chartData={overviewChart.data} chartKey={overviewChart.chartKey} chartView={overviewChartView} setChartView={setOverviewChartView} loading={overviewChart.loading} />}
-                        {tab === 'analytics' && <AnalyticsTab chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={analyticsChart.data} chartKey={analyticsChart.chartKey} loading={analyticsChart.loading} />}
-                        {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={billing.loading} user={user} />}
-                        {tab === 'compare' && <CompareTab comparison={comparison.data} loading={comparison.loading} user={user} />}
-                        {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} loading={gamification.loading} />}
+                        {tab === 'analytics' && <AnalyticsTab chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={analyticsChart.data} chartKey={analyticsChart.chartKey} loading={analyticsChart.loading} heatmapData={dashData?.heatmap} />}
+                        {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={dashLoading} user={user} />}
+                        {tab === 'compare' && <CompareTab comparison={comparison.data} loading={dashLoading} user={user} />}
+                        {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} loading={dashLoading} />}
                         {tab === 'profile' && <ProfileTab user={user} gamification={xpData} />}
                         {tab === 'ml' && <MLTab />}
                     </motion.div>
