@@ -27,20 +27,23 @@ function mapMonthly(raw) {
 }
 
 const VIEW_CONFIG = {
-    hourly: { path: () => `/api/consumption/hourly?date=${new Date().toISOString().split('T')[0]}`, map: mapHourly, key: 'time' },
+    hourly: { path: () => `/api/consumption/hourly`, map: mapHourly, key: 'time' },
     daily: { path: () => { const end = new Date(); const start = new Date(); start.setDate(end.getDate() - 7); return `/api/consumption/daily?start=${start.toISOString().split('T')[0]}&end=${end.toISOString().split('T')[0]}`; }, map: mapDaily, key: 'day' },
     monthly: { path: () => '/api/consumption/monthly?months=6', map: mapMonthly, key: 'month' },
 };
 
 export function useChartData(view) {
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const config = VIEW_CONFIG[view];
-    const chartKey = config.key;
+    const config = view ? VIEW_CONFIG[view] : null;
+    const chartKey = config?.key || 'month';
 
     useEffect(() => {
+        // If view is null, skip fetch (data comes from dashboard endpoint)
+        if (!view || !config) return;
+
         let cancelled = false;
         setLoading(true);
 

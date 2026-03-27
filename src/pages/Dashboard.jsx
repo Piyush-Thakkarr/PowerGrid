@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDashboardData } from '../hooks/useDashboardData';
@@ -15,6 +15,8 @@ import RewardsTab from '../components/dashboard/tabs/RewardsTab';
 import ProfileTab from '../components/dashboard/tabs/ProfileTab';
 import MLTab from '../components/dashboard/tabs/MLTab';
 
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -29,37 +31,53 @@ export default function Dashboard() {
     // Single API call for all dashboard data
     const { data: dashData, loading: dashLoading, error: dashError } = useDashboardData();
 
-    // Chart data still fetched separately (changes on user interaction)
-    const overviewChart = useChartData(overviewChartView);
-    const analyticsChart = useChartData(analyticsChartView);
+    // Only fetch chart data separately when user switches away from monthly (which we already have)
+    const overviewChart = useChartData(overviewChartView === 'monthly' ? null : overviewChartView);
+    const analyticsChart = useChartData(analyticsChartView === 'monthly' ? null : analyticsChartView);
+
+    // Map pre-fetched monthly data to chart format
+    const monthlyChartData = useMemo(() => {
+        if (!dashData?.monthly) return [];
+        return dashData.monthly.map(r => ({
+            month: MONTH_NAMES[parseInt(r.month.split('-')[1]) - 1],
+            units: Math.round(r.kwh * 100) / 100,
+        }));
+    }, [dashData?.monthly]);
+
+    const hourlyChartData = useMemo(() => {
+        if (!dashData?.hourly) return [];
+        return dashData.hourly.map(r => ({
+            time: new Date(r.hour).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }),
+            units: Math.round(r.kwh * 100) / 100,
+        }));
+    }, [dashData?.hourly]);
+
+    // Pick chart data: use pre-fetched if available, else use separate fetch
+    const getChartProps = (view, separateChart) => {
+        if (view === 'monthly' && monthlyChartData.length > 0) {
+            return { data: monthlyChartData, chartKey: 'month', loading: dashLoading };
+        }
+        if (view === 'hourly' && hourlyChartData.length > 0 && !separateChart.data?.length) {
+            return { data: hourlyChartData, chartKey: 'time', loading: dashLoading };
+        }
+        return { data: separateChart.data, chartKey: separateChart.chartKey, loading: separateChart.loading };
+    };
+
+    const ovChartProps = getChartProps(overviewChartView, overviewChart);
+    const anChartProps = getChartProps(analyticsChartView, analyticsChart);
 
     // WebSocket for live watts
     useEffect(() => {
         if (!user?.id) return;
-
-        const wsUrl = API_BASE.replace(/^http/, 'ws') + `/ws/live/${user.id}`;
-        const ws = new WebSocket(wsUrl);
-        wsRef.current = ws;
-
-        ws.onmessage = (event) => {
-            try {
-                const d = JSON.parse(event.data);
-                setLiveWatts(Math.round(d.powerWatts || 0));
-            } catch { /* ignore parse errors */ }
+        // Simulated live watts (WS not supported on serverless)
+        const tick = () => {
+            const h = new Date().getHours();
+            let base = h >= 17 && h <= 22 ? 1800 : h >= 6 && h <= 9 ? 1200 : h >= 10 && h <= 16 ? 700 : 400;
+            setLiveWatts(Math.round(base + (Math.random() - 0.5) * 300));
         };
-
-        ws.onerror = () => {
-            const tick = () => {
-                const h = new Date().getHours();
-                let base = h >= 17 && h <= 22 ? 1800 : h >= 6 && h <= 9 ? 1200 : h >= 10 && h <= 16 ? 700 : 400;
-                setLiveWatts(Math.round(base + (Math.random() - 0.5) * 300));
-            };
-            tick();
-            const id = setInterval(tick, 5000);
-            ws.onclose = () => clearInterval(id);
-        };
-
-        return () => { ws.close(); };
+        tick();
+        const id = setInterval(tick, 5000);
+        return () => clearInterval(id);
     }, [user?.id]);
 
     const handleLogout = async () => {
@@ -103,8 +121,8 @@ export default function Dashboard() {
                 {dashError && <div className="dash-error">Error loading data: {dashError}</div>}
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="dash-content-inner">
-                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={todayUnits} thisMonthUnits={thisMonthUnits} monthChange={monthChange} bill={billing.bill} gamification={xpData} chartData={overviewChart.data} chartKey={overviewChart.chartKey} chartView={overviewChartView} setChartView={setOverviewChartView} loading={overviewChart.loading} />}
-                        {tab === 'analytics' && <AnalyticsTab chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={analyticsChart.data} chartKey={analyticsChart.chartKey} loading={analyticsChart.loading} heatmapData={dashData?.heatmap} />}
+                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={todayUnits} thisMonthUnits={thisMonthUnits} monthChange={monthChange} bill={billing.bill} gamification={xpData} chartData={ovChartProps.data} chartKey={ovChartProps.chartKey} chartView={overviewChartView} setChartView={setOverviewChartView} loading={ovChartProps.loading} />}
+                        {tab === 'analytics' && <AnalyticsTab chartView={analyticsChartView} setChartView={setAnalyticsChartView} chartData={anChartProps.data} chartKey={anChartProps.chartKey} loading={anChartProps.loading} heatmapData={dashData?.heatmap} />}
                         {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={dashLoading} user={user} />}
                         {tab === 'compare' && <CompareTab comparison={comparison.data} loading={dashLoading} user={user} />}
                         {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} loading={dashLoading} />}
