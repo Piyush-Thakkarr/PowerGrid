@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from starlette.middleware.sessions import SessionMiddleware
+
 from app.config import get_settings
 from app.database import engine
 
@@ -26,6 +28,7 @@ app = FastAPI(
 
 settings = get_settings()
 
+app.add_middleware(SessionMiddleware, secret_key="powergrid-session-secret")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins.split(","),
@@ -33,6 +36,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Admin panel at /admin
+from sqlalchemy import create_engine as create_sync_engine
+from app.admin import setup_admin
+sync_engine = create_sync_engine(settings.database_url_sync)
+setup_admin(app, sync_engine)
 
 
 # Mount routers
