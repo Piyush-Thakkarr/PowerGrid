@@ -21,6 +21,7 @@ export default function Sidebar({ tab, onTabChange, user, level, onLogout, loggi
                         aria-current={tab === t.id ? 'page' : undefined}
                         className={`dash-nav-item ${tab === t.id ? 'active' : ''}`}
                         onClick={() => onTabChange(t.id)}
+                        title={t.label}
                     >
                         <span className="dash-nav-icon">{t.icon}</span>
                         <span className="dash-nav-label">{t.label}</span>
