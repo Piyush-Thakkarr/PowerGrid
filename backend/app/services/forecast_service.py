@@ -46,8 +46,6 @@ async def _get_user_daily(db: AsyncSession, user_id: UUID, days: int = 180) -> p
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def forecast_sarima(db: AsyncSession, user_id: UUID, horizon: int = 7) -> dict:
     """SARIMA(1,1,1)(1,1,0,7) forecast for next N days."""
-    from statsmodels.tsa.statespace.sarimax import SARIMAX
-
     df = await _get_user_daily(db, user_id)
     if len(df) < 30:
         return {"error": "Not enough data (need 30+ days)", "model": "sarima"}
@@ -55,6 +53,7 @@ async def forecast_sarima(db: AsyncSession, user_id: UUID, horizon: int = 7) -> 
     y = df.set_index("ds")["y"].asfreq("D").ffill()
 
     try:
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
         model = SARIMAX(y, order=(1, 1, 1), seasonal_order=(1, 1, 0, 7),
                         enforce_stationarity=False, enforce_invertibility=False)
         fit = model.fit(disp=False, maxiter=100)
@@ -86,13 +85,12 @@ async def forecast_sarima(db: AsyncSession, user_id: UUID, horizon: int = 7) -> 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async def forecast_prophet(db: AsyncSession, user_id: UUID, horizon: int = 7) -> dict:
     """Facebook Prophet forecast for next N days."""
-    from prophet import Prophet
-
     df = await _get_user_daily(db, user_id)
     if len(df) < 30:
         return {"error": "Not enough data (need 30+ days)", "model": "prophet"}
 
     try:
+        from prophet import Prophet
         m = Prophet(
             daily_seasonality=False,
             weekly_seasonality=True,
