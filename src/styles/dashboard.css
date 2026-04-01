@@ -68,6 +68,7 @@
   border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: inherit;
+  flex-shrink: 0;
 }
 
 .dash-sidebar-nav {
@@ -84,7 +85,6 @@
   align-items: center;
   gap: .7rem;
   padding: .65rem 1.2rem;
-  width: 100%;
   background: none;
   border: none;
   color: var(--muted);
