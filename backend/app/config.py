@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     supabase_jwt_secret: str = "super-secret-jwt-token-with-at-least-32-characters-long"
 
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,https://power-grid-ruddy.vercel.app"
 
     admin_email: str = "admin@powergrid.in"
     admin_password: str = "admin123"

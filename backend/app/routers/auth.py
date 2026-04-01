@@ -48,11 +48,8 @@ def decode_supabase_token(token: str) -> dict:
     try:
         if header.get("alg") == "ES256":
             # New Supabase projects use asymmetric ES256 keys
-            supabase_url = settings.supabase_jwt_secret.strip()
-            # If the secret looks like a URL, use it directly; otherwise derive from env
-            if not supabase_url.startswith("http"):
-                import os
-                supabase_url = os.environ.get("SUPABASE_URL", "https://aihjvcqxfesivapwwqkk.supabase.co")
+            import os
+            supabase_url = os.environ.get("SUPABASE_URL", "https://aihjvcqxfesivapwwqkk.supabase.co")
             key = _get_jwks_key(supabase_url)
             if key is None:
                 # Fallback: skip verification in case JWKS fetch fails
