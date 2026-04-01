@@ -57,7 +57,6 @@ PowerGrid/
         run_seed.py            - cli entry point
 
       admin/               - sqladmin panel (optional)
-      ml/                  - ml utils (models live in services/)
 
     data/raw/              - real datasets, not generated
       kaggle_mathura_bareilly/
@@ -77,8 +76,6 @@ PowerGrid/
       conftest.py          - test db setup, fake jwt, httpx client
       test_auth.py, test_billing.py, test_consumption.py, test_ml.py etc
 
-    models/                - jupyter model experiments
-    notebooks/             - data exploration notebooks
     .env / .env.example
     requirements-prod.txt  - what leapcell installs
     requirements.txt       - all deps including dev
@@ -98,9 +95,7 @@ PowerGrid/
   dist/                    - vite build output (auto-generated)
   node_modules/            - npm packages (auto-generated)
   supabase/                - supabase local config
-  .claude/                 - claude code config
   vercel.json              - spa rewrite rules
-  render.yaml              - render.com config
   package.json, vite.config.js, vitest.config.js
 
 
