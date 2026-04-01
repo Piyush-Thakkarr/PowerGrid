@@ -78,6 +78,9 @@
   flex-direction: column;
   gap: 2px;
   overflow-y: auto;
+  overflow-x: hidden;
+  width: 220px;
+  max-width: 220px;
 }
 
 .dash-nav-item {
@@ -85,6 +88,9 @@
   align-items: center;
   gap: .7rem;
   padding: .65rem 1.2rem;
+  width: 220px;
+  max-width: 220px;
+  box-sizing: border-box;
   background: none;
   border: none;
   color: var(--muted);
