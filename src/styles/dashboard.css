@@ -58,7 +58,6 @@
   left: 0;
   z-index: 100;
   overflow: hidden;
-  contain: layout paint;
 }
 
 .dash-sidebar-logo {
@@ -69,6 +68,8 @@
   border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: inherit;
+  flex-shrink: 0;
+  min-height: 22px;
 }
 
 .dash-sidebar-nav {
