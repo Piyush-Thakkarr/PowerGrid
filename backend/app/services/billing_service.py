@@ -8,8 +8,24 @@ from app.models.tariff import Tariff, Discom
 from app.models.user import UserProfile
 
 
-async def calculate_bill(db: AsyncSession, user_id: UUID, month: int, year: int) -> dict:
-    """Calculate electricity bill for a user for a given month."""
+async def calculate_bill(db: AsyncSession, user_id: UUID, month: int | None, year: int | None) -> dict:
+    """Calculate electricity bill for a user for a given month.
+    If month/year are None, uses the latest data month."""
+
+    # If no month/year, use latest data month
+    if not month or not year:
+        latest = await db.execute(
+            text("SELECT MAX(timestamp) FROM consumption_data WHERE user_id = :uid"),
+            {"uid": str(user_id)},
+        )
+        latest_ts = latest.scalar()
+        if latest_ts:
+            month = latest_ts.month
+            year = latest_ts.year
+        else:
+            from datetime import datetime
+            month = datetime.now().month
+            year = datetime.now().year
 
     # Get user's state
     profile = await db.execute(
@@ -103,14 +119,17 @@ async def calculate_bill(db: AsyncSession, user_id: UUID, month: int, year: int)
 
 
 async def get_bill_history(db: AsyncSession, user_id: UUID, months: int = 6) -> list[dict]:
-    """Monthly bill summaries for the last N months."""
+    """Monthly bill summaries for the last N months relative to latest data."""
     result = await db.execute(
         text("""
             SELECT date_trunc('month', timestamp) AS month,
                    SUM(energy_kwh) AS total_kwh
             FROM consumption_data
             WHERE user_id = :uid
-              AND timestamp >= NOW() - make_interval(months => :months)
+              AND timestamp >= (
+                  SELECT MAX(timestamp) - make_interval(months => :months)
+                  FROM consumption_data WHERE user_id = :uid
+              )
             GROUP BY month ORDER BY month
         """),
         {"uid": str(user_id), "months": months},
