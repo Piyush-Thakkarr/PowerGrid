@@ -186,13 +186,13 @@ export function AuthProvider({ children }) {
 
     // Logout
     const logout = async () => {
+        setUser(null);
+        setProfile(null);
         try {
             await supabase.auth.signOut();
         } catch (err) {
             console.warn('Sign-out error:', err);
         }
-        setUser(null);
-        setProfile(null);
     };
 
     // Update profile
