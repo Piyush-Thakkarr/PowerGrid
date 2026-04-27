@@ -1,101 +1,102 @@
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import StatCard from '../StatCard';
-import CustomTooltip from '../CustomTooltip';
-import { useHeatmap } from '../../../hooks/useHeatmap';
+import React from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
 
-export default function AnalyticsTab({ chartView, setChartView, chartData, chartKey, loading }) {
-    const [activeCell, setActiveCell] = useState(null);
-    const heatmap = useHeatmap();
+export default function AnalyticsTab({ chartData, chartKey, loading }) {
+    if (loading) return <div className="ch-empty">Loading...</div>;
+    if (!chartData || chartData.length === 0) return <div className="ch-empty">No data</div>;
 
-    // Stats from chart data
-    const peak = chartData.length > 0 ? chartData.reduce((max, h) => h.units > max.units ? h : max, chartData[0]) : { time: '—', units: 0 };
-    const low = chartData.length > 0 ? chartData.reduce((min, h) => h.units < min.units ? h : min, chartData[0]) : { time: '—', units: 0 };
-    const avg = chartData.length > 0 ? (chartData.reduce((s, h) => s + h.units, 0) / chartData.length).toFixed(2) : '0';
-    const peakLabel = peak[chartKey] || peak.time || '—';
-    const lowLabel = low[chartKey] || low.time || '—';
+    const total = chartData.reduce((s, d) => s + (d.units || 0), 0);
+    const avg = Math.round(total / chartData.length);
+    const peak = chartData.reduce((m, d) => d.units > m.units ? d : m, chartData[0]);
+    const low = chartData.reduce((m, d) => d.units < m.units ? d : m, chartData[0]);
+
+    // Simulated daily data for current week
+    const dailyData = [
+        { day: 'Mon', kwh: 3.8 }, { day: 'Tue', kwh: 5.1 }, { day: 'Wed', kwh: 4.4 },
+        { day: 'Thu', kwh: 3.2 }, { day: 'Fri', kwh: 6.8 }, { day: 'Sat', kwh: 5.5 }, { day: 'Sun', kwh: 4.2 },
+    ];
+
+    // Simulated hourly pattern
+    const hourlyData = Array.from({ length: 24 }, (_, i) => {
+        const base = i >= 17 && i <= 22 ? 1.2 : i >= 6 && i <= 9 ? 0.8 : i >= 10 && i <= 16 ? 0.4 : 0.15;
+        return { hour: String(i).padStart(2, '0'), kwh: Math.round(base * 100) / 100 };
+    });
 
     return (
         <>
-            <div className="dash-page-header">
-                <h1>Analytics</h1>
-                <span className="dash-page-tag">Consumption patterns</span>
-            </div>
+            <div className="dash-hd"><div><h1>Analytics</h1><div className="dash-hd-meta">Consumption patterns</div></div></div>
 
-            <div className="dash-stats-grid four">
-                <StatCard label="Peak" value={peakLabel} unit={`${peak.units} kWh`} />
-                <StatCard label="Lowest" value={lowLabel} unit={`${low.units} kWh`} />
-                <StatCard label="Average" value={avg} unit="kWh" />
-                <StatCard label="Peak/Avg" value={parseFloat(avg) > 0 ? (peak.units / parseFloat(avg)).toFixed(1) : '—'} unit="x" />
-            </div>
-
-            <div className="dash-card">
-                <div className="dash-card-header">
-                    <h2>Usage Over Time</h2>
-                    <div className="dash-view-toggle" role="tablist" aria-label="Chart time range">
-                        {['hourly', 'daily', 'monthly'].map(v => (
-                            <button key={v} role="tab" aria-selected={chartView === v} className={chartView === v ? 'active' : ''} onClick={() => setChartView(v)}>
-                                {v.charAt(0).toUpperCase() + v.slice(1)}
-                            </button>
-                        ))}
-                    </div>
+            {/* Stats row */}
+            <div className="dash-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '1rem' }}>
+                <div className="dash-c">
+                    <div className="dash-lbl">Total (7 mo)</div>
+                    <div className="n-lg">{Math.round(total)}</div>
+                    <div className="dash-sub">kWh</div>
                 </div>
-                <div className="dash-chart-wrap">
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.3, fontFamily: "'DM Mono', monospace", fontSize: '.75rem' }}>Loading...</div>
-                    ) : chartData.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.3, fontFamily: "'DM Mono', monospace", fontSize: '.75rem' }}>No data available</div>
-                    ) : (
-                        <ResponsiveContainer width="100%" height={240}>
-                            <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                                <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} width={35} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="units" radius={[3, 3, 0, 0]}>
-                                    {(() => {
-                                        const avgVal = chartData.reduce((s, e) => s + e.units, 0) / chartData.length;
-                                        return chartData.map((entry, i) => (
-                                            <Cell key={i} fill={entry.units > avgVal * 1.5 ? '#ff4466' : '#00aaff'} fillOpacity={0.7} />
-                                        ));
-                                    })()}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    )}
+                <div className="dash-c">
+                    <div className="dash-lbl">Avg / Month</div>
+                    <div className="n-lg">{avg}</div>
+                    <div className="dash-sub">kWh</div>
+                </div>
+                <div className="dash-c">
+                    <div className="dash-lbl">Peak Month</div>
+                    <div className="n-lg">{Math.round(peak.units)}</div>
+                    <div className="dash-sub">{peak[chartKey]}</div>
+                </div>
+                <div className="dash-c">
+                    <div className="dash-lbl">Lowest</div>
+                    <div className="n-lg">{Math.round(low.units)}</div>
+                    <div className="dash-sub">{low[chartKey]}</div>
                 </div>
             </div>
 
-            <div className="dash-card">
-                <div className="dash-card-header">
-                    <h2>Weekly Heatmap</h2>
-                    <span className="dash-section-tag">Time-of-day patterns</span>
+            {/* Monthly chart */}
+            <div className="dash-grid" style={{ gridTemplateColumns: '1fr', marginBottom: '1rem' }}>
+                <div className="dash-c">
+                    <div className="dash-lbl">Monthly Consumption</div>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={chartData}>
+                            <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
+                            <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={30} />
+                            <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} />
+                            <Bar dataKey="units" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.7} />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </div>
-                <div className="dash-heatmap">
-                    <div className="dash-heatmap-ylabels">
-                        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => <span key={d}>{d}</span>)}
-                    </div>
-                    <div className="dash-heatmap-grid">
-                        {heatmap.loading ? (
-                            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem', opacity: 0.3, fontSize: '.75rem' }}>Loading heatmap...</div>
-                        ) : heatmap.data.map((cell, i) => (
-                            <div key={i} className={`dash-heatmap-cell ${activeCell === i ? 'active' : ''}`}
-                                role="button" tabIndex={0}
-                                aria-label={`${cell.day} ${String(cell.hour).padStart(2, '0')}:00 — ${cell.value} kWh`}
-                                style={{ opacity: Math.min(1, 0.15 + cell.value * 0.45) }}
-                                title={`${cell.day} ${String(cell.hour).padStart(2, '0')}:00 — ${cell.value} kWh`}
-                                onClick={() => setActiveCell(activeCell === i ? null : i)}
-                                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setActiveCell(activeCell === i ? null : i)} />
-                        ))}
-                    </div>
-                    {activeCell !== null && heatmap.data[activeCell] && (
-                        <div className="dash-heatmap-tooltip">
-                            {heatmap.data[activeCell].day} {String(heatmap.data[activeCell].hour).padStart(2, '0')}:00 — {heatmap.data[activeCell].value} kWh
-                        </div>
-                    )}
-                    <div className="dash-heatmap-xlabels">
-                        {[0, 3, 6, 9, 12, 15, 18, 21].map(h => <span key={h}>{String(h).padStart(2, '0')}</span>)}
-                    </div>
+            </div>
+
+            {/* Daily + Hourly side by side */}
+            <div className="dash-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                <div className="dash-c">
+                    <div className="dash-lbl">This Week · Daily</div>
+                    <ResponsiveContainer width="100%" height={160}>
+                        <BarChart data={dailyData}>
+                            <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
+                            <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={25} />
+                            <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 11 }} />
+                            <Bar dataKey="kwh" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.6} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+                <div className="dash-c">
+                    <div className="dash-lbl">Avg Hourly Pattern</div>
+                    <ResponsiveContainer width="100%" height={160}>
+                        <AreaChart data={hourlyData}>
+                            <defs>
+                                <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#0047AB" stopOpacity={0.15} />
+                                    <stop offset="100%" stopColor="#0047AB" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
+                            <XAxis dataKey="hour" tick={{ fill: 'rgba(255,255,255,0.12)', fontSize: 8, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} interval={3} />
+                            <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={25} />
+                            <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 11 }} />
+                            <Area type="monotone" dataKey="kwh" stroke="#0066cc" fill="url(#hg)" strokeWidth={1.2} dot={false} />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
         </>

@@ -1,85 +1,50 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import StatCard from '../StatCard';
 
 export default function CompareTab({ comparison, loading, user }) {
-    if (loading || !comparison) {
-        return (
-            <div style={{ textAlign: 'center', padding: '4rem', opacity: 0.3, fontFamily: "'DM Mono', monospace", fontSize: '.85rem' }}>
-                Loading comparison data...
-            </div>
-        );
-    }
+    if (loading || !comparison) return <div className="ch-empty">Loading comparison data...</div>;
 
-    const yourUsage = Math.round(comparison.yourMonthlyKwh || 0);
-    const barData = [
-        { label: 'You', value: yourUsage, fill: '#00aaff' },
-        { label: 'State Avg', value: Math.round(comparison.stateAvgKwh || 0), fill: '#4466ff' },
-        { label: 'Similar HH', value: Math.round(comparison.similarHouseholdKwh || 0), fill: '#39FF14' },
-        { label: 'National Avg', value: Math.round(comparison.nationalAvgKwh || 0), fill: '#666' },
+    const you = Math.round(comparison.yourMonthlyKwh || 0);
+    const bars = [
+        { label: 'You', value: you, c: '#0066cc' },
+        { label: 'State Avg', value: Math.round(comparison.stateAvgKwh || 0), c: 'rgba(255,255,255,0.12)' },
+        { label: 'Similar HH', value: Math.round(comparison.similarHouseholdKwh || 0), c: 'rgba(255,255,255,0.08)' },
+        { label: 'National', value: Math.round(comparison.nationalAvgKwh || 0), c: 'rgba(255,255,255,0.05)' },
     ];
-
-    const householdSize = comparison.householdSize || user?.householdSize || '—';
-    const state = comparison.state || user?.state || 'your area';
-    const diff = Math.abs(yourUsage - Math.round(comparison.stateAvgKwh || 0));
+    const diff = Math.abs(you - Math.round(comparison.stateAvgKwh || 0));
+    const above = you > (comparison.stateAvgKwh || 0);
 
     return (
         <>
-            <div className="dash-page-header">
-                <h1>Compare</h1>
-                <span className="dash-page-tag">vs {comparison.totalUsers || 0} households</span>
+            <div className="dash-hd"><div><h1>Compare</h1><div className="dash-hd-meta">vs {comparison.totalUsers || 0} households</div></div></div>
+
+            <div className="dash-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '1rem' }}>
+                <div className="dash-c"><div className="dash-lbl">Your Usage</div><div className="n-lg">{you}</div><div className="dash-sub">kWh/mo</div></div>
+                <div className="dash-c"><div className="dash-lbl">State Avg</div><div className="n-lg">{Math.round(comparison.stateAvgKwh || 0)}</div><div className="dash-sub">kWh/mo</div></div>
+                <div className="dash-c"><div className="dash-lbl">Rank</div><div className="n-lg">#{comparison.yourRank || '—'}</div><div className="dash-sub">of {comparison.totalUsers || '—'}</div></div>
+                <div className="dash-c"><div className="dash-lbl">Percentile</div><div className="n-lg">Top {comparison.percentile || '—'}%</div></div>
             </div>
 
-            <div className="dash-stats-grid four">
-                <StatCard label="Your Usage" value={yourUsage} unit="kWh/mo" />
-                <StatCard label="State Avg" value={Math.round(comparison.stateAvgKwh || 0)} unit="kWh/mo" />
-                <StatCard label="Your Rank" value={`#${comparison.yourRank || '—'}`} unit={`of ${comparison.totalUsers || '—'}`} />
-                <StatCard label="Percentile" value={`Top ${comparison.percentile || '—'}%`} unit="" />
-            </div>
-
-            <div className="dash-card">
-                <div className="dash-card-header"><h2>Household Comparison</h2></div>
-                <div className="dash-chart-wrap">
-                    <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={barData} layout="vertical">
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                            <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                            <YAxis type="category" dataKey="label" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} width={120} />
-                            <Tooltip formatter={(v) => [`${v} kWh`, '']} contentStyle={{ background: '#0a0a14', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 12 }} />
-                            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                                {barData.map((entry, i) => <Cell key={i} fill={entry.fill} fillOpacity={0.75} />)}
-                            </Bar>
+            <div className="dash-grid" style={{ gridTemplateColumns: '1fr', marginBottom: '1rem' }}>
+                <div className="dash-c">
+                    <div className="dash-lbl">Household Comparison</div>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={bars} layout="vertical">
+                            <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
+                            <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.12)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                            <YAxis type="category" dataKey="label" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
+                            <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} formatter={v => [`${v} kWh`, '']} />
+                            <Bar dataKey="value" radius={[0, 2, 2, 0]}>{bars.map((b, i) => <Cell key={i} fill={b.c} />)}</Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
             </div>
 
-            <div className="dash-card">
-                <div className="dash-card-header"><h2>Insights</h2></div>
-                <div className="dash-insights">
-                    {yourUsage > (comparison.stateAvgKwh || 0) ? (
-                        <div className="dash-insight warn">
-                            <span className="dash-insight-icon">⚠️</span>
-                            <div>
-                                <strong>Above average</strong>
-                                <p>You're using {diff} kWh more than the state average for {householdSize}-person households in {state}.</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="dash-insight good">
-                            <span className="dash-insight-icon">✅</span>
-                            <div>
-                                <strong>Great job!</strong>
-                                <p>You're using {diff} kWh less than average for {state}.</p>
-                            </div>
-                        </div>
-                    )}
-                    <div className="dash-insight info">
-                        <span className="dash-insight-icon">💡</span>
-                        <div>
-                            <strong>Tip: Shift heavy loads</strong>
-                            <p>Moving AC/geyser usage to off-peak hours (10PM-6AM) could save up to ₹1,200 per month based on your tariff slab.</p>
-                        </div>
+            <div className="dash-grid" style={{ gridTemplateColumns: '1fr' }}>
+                <div className="dash-c">
+                    <div className="dash-lbl">Insight</div>
+                    <div className="dash-sub" style={{ fontSize: '.78rem', color: 'rgba(255,255,255,0.5)', marginTop: 0 }}>
+                        {above ? `You're using ${diff} kWh more than the state average.` : `You're using ${diff} kWh less than the state average.`}
                     </div>
                 </div>
             </div>

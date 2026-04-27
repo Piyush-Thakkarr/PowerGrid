@@ -6,6 +6,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import DashboardPreview from './pages/DashboardPreview';
 import './styles/index.css';
 
 function LoadingScreen() {
@@ -70,6 +71,7 @@ function App() {
                     <Dashboard />
                 </ProtectedRoute>
             } />
+            <Route path="/preview" element={<DashboardPreview />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

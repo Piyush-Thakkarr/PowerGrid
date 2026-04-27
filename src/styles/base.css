@@ -1,3 +1,15 @@
+/* Keep only the minimal reset. Everything else is page-specific. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Landing page variables + body — scoped so dashboard can override */
 :root {
   --bg: #000000;
   --bg2: #050508;
@@ -11,10 +23,13 @@
   --line: rgba(255, 255, 255, 0.15);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .brand-name {
@@ -30,19 +45,7 @@
   text-transform: uppercase;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  overflow-x: hidden;
-  line-height: 1.5;
-}
-
-/* Canvas & overlays */
+/* Canvas & overlays (landing page only) */
 #cv {
   position: fixed;
   inset: 0;
