@@ -1,11 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_TABS } from '../../lib/constants';
-import { LayoutDashboard, BarChart3, Receipt, Users, Trophy, BrainCircuit, User, Settings } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Receipt, Users, Trophy, BrainCircuit, User, Settings, LogOut } from 'lucide-react';
 
 const ICONS = { overview: LayoutDashboard, analytics: BarChart3, billing: Receipt, compare: Users, rewards: Trophy, ml: BrainCircuit, profile: User };
 
-export default function Sidebar({ tab, onTabChange, user }) {
+export default function Sidebar({ tab, onTabChange, user, onLogout }) {
     return (
         <div className="dash-side">
             <Link to="/" className="dash-side-logo">
@@ -26,6 +26,7 @@ export default function Sidebar({ tab, onTabChange, user }) {
             </div>
             <div className="dash-side-bottom">
                 <button className="dash-side-btn" onClick={() => onTabChange('profile')}><Settings size={15} strokeWidth={1.5} /></button>
+                <button className="dash-side-btn" onClick={onLogout} style={{ color: 'rgba(255,255,255,0.15)' }}><LogOut size={14} strokeWidth={1.5} /></button>
                 <div className="dash-side-av">{user?.name?.charAt(0)?.toUpperCase() || '?'}</div>
             </div>
         </div>

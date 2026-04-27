@@ -66,7 +66,7 @@ export default function Dashboard() {
 
     return (
         <div className="dash-page">
-            <Sidebar tab={tab} onTabChange={setTab} user={user} />
+            <Sidebar tab={tab} onTabChange={setTab} user={user} onLogout={handleLogout} />
             <main className="dash-main">
                 {dashLoading && <div className="dash-loading">Loading...</div>}
                 {dashError && <div className="dash-error">{dashError}</div>}
