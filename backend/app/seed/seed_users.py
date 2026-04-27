@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.database import Base
+
 from app.models.user import User, UserProfile
 
 INDIAN_STATES = [

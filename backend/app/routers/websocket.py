@@ -5,7 +5,6 @@ one reading every 5 seconds to simulate real-time updates.
 """
 
 import asyncio
-import json
 from datetime import datetime
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect

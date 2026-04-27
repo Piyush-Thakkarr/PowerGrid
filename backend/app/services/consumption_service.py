@@ -1,7 +1,7 @@
 """Consumption data queries — hourly, daily, monthly aggregations."""
 
 from datetime import datetime, timedelta
-from sqlalchemy import select, func, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 

@@ -9,7 +9,6 @@ Pipeline:
   5. Insert in batches of 5000 rows via raw SQL COPY-style inserts
 """
 
-import os
 import time
 from pathlib import Path
 

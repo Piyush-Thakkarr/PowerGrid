@@ -7,7 +7,7 @@ Models are lightweight enough to train per-user on CPU.
 
 import warnings
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from uuid import UUID
 
 import numpy as np

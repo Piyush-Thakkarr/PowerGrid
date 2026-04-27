@@ -4,7 +4,7 @@ Seed script: Insert achievements, challenges, user achievements,
 """
 
 import random
-from datetime import date, datetime, timezone
+from datetime import date
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
@@ -12,7 +12,6 @@ from app.config import get_settings
 from app.models.gamification import (
     Achievement, Challenge, UserAchievement, UserChallenge, LeaderboardEntry,
 )
-from app.models.user import UserProfile
 
 # ---- Achievement definitions ----
 ACHIEVEMENTS = [
