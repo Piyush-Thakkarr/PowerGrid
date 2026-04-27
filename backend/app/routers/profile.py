@@ -1,4 +1,3 @@
-import jwt as pyjwt
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -6,7 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.config import get_settings
 from app.models.user import User, UserProfile
 from app.services.auth_service import get_or_create_user, user_to_response
 from app.schemas.auth import UserResponse

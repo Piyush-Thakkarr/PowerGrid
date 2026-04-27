@@ -5,7 +5,6 @@ Pre-trains on user's historical data, caches results in DB.
 Models are lightweight enough to train per-user on CPU.
 """
 
-import json
 import warnings
 import logging
 from datetime import datetime, timedelta

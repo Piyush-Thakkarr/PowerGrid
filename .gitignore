@@ -20,3 +20,6 @@ backend/data/raw/
 __pycache__/
 *.pyc
 backend/.env
+.claude/
+test.db
+test_seed.db
