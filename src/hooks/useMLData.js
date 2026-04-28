@@ -28,10 +28,6 @@ export function useMLAnomalies() {
     return useMLEndpoint('/api/ml/anomalies?sensitivity=0.05');
 }
 
-export function useMLDecomposition() {
-    return useMLEndpoint('/api/ml/decomposition');
-}
-
 export function useMLPeakHours() {
     return useMLEndpoint('/api/ml/peak-hours?days=30');
 }
