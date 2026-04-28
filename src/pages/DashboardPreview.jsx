@@ -40,7 +40,7 @@ export default function DashboardPreview() {
     const [tab, setTab] = useState('overview');
     return (
         <div className="dash-page">
-            <Sidebar tab={tab} onTabChange={setTab} user={mockUser} />
+            <Sidebar tab={tab} onTabChange={setTab} user={mockUser} onLogout={() => window.location.href = '/'} />
             <main className="dash-main">
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>

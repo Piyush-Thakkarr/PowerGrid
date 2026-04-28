@@ -10,9 +10,11 @@ export default function OverviewTab({ liveWatts, todayUnits, thisMonthUnits, mon
     const breakdown = bill?.breakdown || [];
 
     // Compute electrical values from watts (P = V * I, Indian grid = 230V 50Hz)
-    const voltage = (229 + Math.random() * 3).toFixed(1);
-    const current = liveWatts > 0 ? (liveWatts / 230).toFixed(1) : '0.0';
-    const frequency = (49.9 + Math.random() * 0.2).toFixed(1);
+    // Use hour-based seed so values are stable within the same minute, not re-randomizing per render
+    const hourSeed = new Date().getHours() + new Date().getMinutes();
+    const voltage = (229.5 + (hourSeed % 5) * 0.3).toFixed(1);
+    const current = liveWatts > 0 ? (liveWatts / parseFloat(voltage)).toFixed(1) : '0.0';
+    const frequency = (49.95 + (hourSeed % 3) * 0.02).toFixed(2);
 
     // Real ML data
     const { data: forecastData, loading: fcLoading, error: fcError } = useMLForecast();
