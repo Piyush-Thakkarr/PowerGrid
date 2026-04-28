@@ -44,7 +44,7 @@ export default function DashboardPreview() {
             <main className="dash-main">
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                        {tab === 'overview' && <OverviewTab liveWatts={726} todayUnits={4.2} thisMonthUnits={108} monthChange={29} bill={mockBill} gamification={mockXp} chartData={mockChart} chartKey="month" chartView="monthly" setChartView={() => {}} loading={false} />}
+                        {tab === 'overview' && <OverviewTab liveWatts={726} todayUnits={4.2} thisMonthUnits={108} monthChange={29} peakWatts={1842} bill={mockBill} gamification={mockXp} comparison={mockComparison} hourlyData={[]} chartData={mockChart} chartKey="month" chartView="monthly" setChartView={() => {}} loading={false} />}
                         {tab === 'analytics' && <AnalyticsTab chartData={mockChart} chartKey="month" loading={false} />}
                         {tab === 'billing' && <BillingTab bill={mockBill} history={mockHistory} loading={false} user={mockUser} />}
                         {tab === 'compare' && <CompareTab comparison={mockComparison} loading={false} user={mockUser} />}

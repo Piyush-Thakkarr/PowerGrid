@@ -72,7 +72,7 @@ export default function Dashboard() {
                 {dashError && <div className="dash-error">{dashError}</div>}
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={stats.todayKwh || 0} thisMonthUnits={stats.thisMonthKwh || 0} monthChange={stats.monthChangePercent || 0} bill={billing.bill} gamification={xpData} chartData={chartProps.data} chartKey={chartProps.chartKey} chartView={chartView} setChartView={setChartView} loading={chartProps.loading} />}
+                        {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={stats.todayKwh || 0} thisMonthUnits={stats.thisMonthKwh || 0} monthChange={stats.monthChangePercent || 0} peakWatts={stats.peakWatts || 0} bill={billing.bill} gamification={xpData} comparison={comparison.data} hourlyData={dashData?.hourly || []} chartData={chartProps.data} chartKey={chartProps.chartKey} chartView={chartView} setChartView={setChartView} loading={chartProps.loading} />}
                         {tab === 'analytics' && <AnalyticsTab chartData={chartProps.data} chartKey={chartProps.chartKey} loading={chartProps.loading} />}
                         {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={dashLoading} user={user} />}
                         {tab === 'compare' && <CompareTab comparison={comparison.data} loading={dashLoading} user={user} />}
