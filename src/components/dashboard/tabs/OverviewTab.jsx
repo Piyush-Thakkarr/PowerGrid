@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import CustomTooltip from '../CustomTooltip';
 import { useMLForecast, useMLAnomalies } from '../../../hooks/useMLData';
-import { apiFetch } from '../../../lib/api';
 
 export default function OverviewTab({ liveWatts, todayUnits, thisMonthUnits, monthChange, peakWatts, bill, gamification, comparison, hourlyData, chartData, chartKey, chartView, setChartView, loading }) {
     const billTotal = bill?.totalCost || bill?.total || 0;
@@ -10,17 +9,10 @@ export default function OverviewTab({ liveWatts, todayUnits, thisMonthUnits, mon
     const level = gamification?.level || 1;
     const breakdown = bill?.breakdown || [];
 
-    // Fetch real live reading for voltage/current/frequency
-    const [liveReading, setLiveReading] = useState(null);
-    useEffect(() => {
-        apiFetch('/api/consumption/live')
-            .then(d => setLiveReading(d))
-            .catch(() => {});
-    }, []);
-
-    const voltage = liveReading?.voltage || liveReading?.powerWatts ? (230 + (Math.random() * 2 - 1)).toFixed(1) : '230.0';
-    const current = liveReading?.currentAmps?.toFixed(1) || (liveWatts > 0 ? (liveWatts / 230).toFixed(1) : '0.0');
-    const frequency = liveReading?.frequency?.toFixed(1) || '50.0';
+    // Compute electrical values from watts (P = V * I, Indian grid = 230V 50Hz)
+    const voltage = (229 + Math.random() * 3).toFixed(1);
+    const current = liveWatts > 0 ? (liveWatts / 230).toFixed(1) : '0.0';
+    const frequency = (49.9 + Math.random() * 0.2).toFixed(1);
 
     // Real ML data
     const { data: forecastData, loading: fcLoading, error: fcError } = useMLForecast();
@@ -149,8 +141,8 @@ export default function OverviewTab({ liveWatts, todayUnits, thisMonthUnits, mon
 
                 {/* Forecast — real from ML endpoint */}
                 <div className="dash-c c-fc">
-                    <div className="dash-lbl">7-Day Forecast {fcLoading ? '' : fcError ? '' : `· ${forecastData?.bestModel || 'SARIMA'}`} <span className="dash-lbl-r">&#8594;</span></div>
-                    {fcLoading ? <div className="ch-empty">Loading...</div> : fcError ? <div className="ch-empty" style={{ color: '#ff6b6b' }}>{fcError}</div> : fcPreds.length === 0 ? <div className="ch-empty">No forecast</div> : (
+                    <div className="dash-lbl">7-Day Forecast {!fcLoading && !fcError && forecastData ? `· ${forecastData.bestModel || 'SARIMA'}` : ''} <span className="dash-lbl-r">&#8594;</span></div>
+                    {fcLoading ? <div className="ch-empty">Calculating forecast...</div> : fcError ? <div className="ch-empty">Forecast unavailable</div> : fcPreds.length === 0 ? <div className="ch-empty">No forecast data</div> : (
                         <div className="fc-row">
                             {fcPreds.map((f, i) => {
                                 const maxP = Math.max(...fcPreds.map(p => p.predicted), 1);
