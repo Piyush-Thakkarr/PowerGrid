@@ -20,8 +20,7 @@ const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'
 export default function Dashboard() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const isNewUser = user?.state === 'Gujarat' && user?.householdSize === 4;
-    const [tab, setTab] = useState(isNewUser ? 'profile' : 'overview');
+    const [tab, setTab] = useState('overview');
     const [chartView, setChartView] = useState('monthly');
     const [liveWatts, setLiveWatts] = useState(0);
     const [loggingOut, setLoggingOut] = useState(false);
