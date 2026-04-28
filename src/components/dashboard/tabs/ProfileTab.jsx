@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { INDIAN_STATES, TARIFF_OPTIONS } from '../../../lib/constants';
+import { INDIAN_STATES, TARIFF_OPTIONS, DEFAULTS, HOUSEHOLD_SIZES } from '../../../lib/constants';
 import { apiFetch } from '../../../lib/api';
 
 export default function ProfileTab({ user, gamification }) {
@@ -9,7 +9,8 @@ export default function ProfileTab({ user, gamification }) {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState('');
-    const [form, setForm] = useState({ name: user?.name || '', householdSize: String(user?.householdSize || 4), state: user?.state || 'Gujarat', tariffPlan: user?.tariffPlan || 'Residential' });
+    const getDefaults = () => ({ name: user?.name || '', householdSize: String(user?.householdSize || DEFAULTS.householdSize), state: user?.state || DEFAULTS.state, tariffPlan: user?.tariffPlan || DEFAULTS.tariffPlan });
+    const [form, setForm] = useState(getDefaults());
     const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
     const handleSave = async () => {
@@ -27,7 +28,7 @@ export default function ProfileTab({ user, gamification }) {
         <>
             <div className="dash-hd">
                 <div><h1>Profile</h1><div className="dash-hd-meta">Level {gamification?.level || 1}</div></div>
-                {!editing && <button className="dash-side-btn" style={{ width: 'auto', height: 'auto', padding: '.25rem .6rem', fontSize: '.55rem', fontFamily: "'DM Mono', monospace", letterSpacing: '1.5px', color: '#00aaff', border: '1px solid rgba(0,170,255,0.2)', borderRadius: 3, textTransform: 'uppercase' }} onClick={() => { setForm({ name: user?.name || '', householdSize: String(user?.householdSize || 4), state: user?.state || 'Gujarat', tariffPlan: user?.tariffPlan || 'Residential' }); setEditing(true); }}>Edit</button>}
+                {!editing && <button className="dash-side-btn" style={{ width: 'auto', height: 'auto', padding: '.25rem .6rem', fontSize: '.55rem', fontFamily: "'DM Mono', monospace", letterSpacing: '1.5px', color: '#00aaff', border: '1px solid rgba(0,170,255,0.2)', borderRadius: 3, textTransform: 'uppercase' }} onClick={() => { setForm(getDefaults()); setEditing(true); }}>Edit</button>}
             </div>
 
             {error && <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '.65rem', color: '#ff6b6b', marginBottom: '.5rem' }}>{error}</div>}

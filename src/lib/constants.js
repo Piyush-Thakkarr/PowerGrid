@@ -9,6 +9,9 @@ export const INDIAN_STATES = [
 
 export const TARIFF_OPTIONS = ['Residential', 'Commercial', 'Industrial'];
 
+export const DEFAULTS = { state: 'Gujarat', householdSize: 4, tariffPlan: 'Residential' };
+export const HOUSEHOLD_SIZES = [1, 2, 3, 4, 5, 6, 7, 8];
+
 export const DASHBOARD_TABS = [
     { id: 'overview', label: 'Overview', icon: '⚡' },
     { id: 'analytics', label: 'Analytics', icon: '📊' },
