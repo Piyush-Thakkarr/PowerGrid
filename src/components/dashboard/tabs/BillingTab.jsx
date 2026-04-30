@@ -41,11 +41,11 @@ export default function BillingTab({ bill, history, loading, user }) {
                         <div className="dash-lbl">Monthly Cost Trend</div>
                         <ResponsiveContainer width="100%" height={180}>
                             <BarChart data={historyChart}>
-                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={40} tickFormatter={v => `₹${v}`} />
-                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} formatter={v => [`₹${v}`, 'Cost']} />
-                                <Bar dataKey="cost" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.7} />
+                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={48} tickFormatter={v => `₹${v}`} />
+                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} formatter={v => [`₹${v}`, 'Cost']} />
+                                <Bar dataKey="cost" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.85} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

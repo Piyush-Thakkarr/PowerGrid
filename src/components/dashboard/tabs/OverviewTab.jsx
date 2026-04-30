@@ -78,15 +78,15 @@ export default function OverviewTab({ liveWatts, todayUnits, thisMonthUnits, mon
                                 <AreaChart data={chartData}>
                                     <defs>
                                         <linearGradient id="af" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#0047AB" stopOpacity={0.2} />
-                                            <stop offset="100%" stopColor="#0047AB" stopOpacity={0} />
+                                            <stop offset="0%" stopColor="#0047AB" stopOpacity={0.5} />
+                                            <stop offset="100%" stopColor="#0047AB" stopOpacity={0.05} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                                    <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={30} />
+                                    <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                                    <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                                    <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={36} />
                                     <Tooltip cursor={false} content={<CustomTooltip />} />
-                                    <Area type="monotone" dataKey="units" stroke="#0066cc" fill="url(#af)" strokeWidth={1.2} dot={false} />
+                                    <Area type="monotone" dataKey="units" stroke="#0066cc" fill="url(#af)" strokeWidth={2} dot={false} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         )}

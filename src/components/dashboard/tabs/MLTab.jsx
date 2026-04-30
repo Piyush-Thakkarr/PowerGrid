@@ -18,11 +18,11 @@ function Forecast() {
                 <div className="dash-lbl">7-Day Forecast <span style={{ fontWeight: 400, letterSpacing: 0 }}>{data.bestModel || 'SARIMA'}</span></div>
                 <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                        <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={30} />
-                        <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} />
-                        <Line type="monotone" dataKey="kWh" stroke="#0066cc" strokeWidth={1.2} dot={false} />
+                        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} />
+                        <Line type="monotone" dataKey="kWh" stroke="#0066cc" strokeWidth={2} dot={{ r: 2, fill: '#0066cc' }} />
                     </LineChart>
                 </ResponsiveContainer>
             </div>
@@ -66,11 +66,11 @@ function PeakHours() {
                 <div className="dash-lbl">Peak Hours <span className="an-count">Peak: {(data.peakHours || []).map(h => `${h}:00`).join(', ')}</span></div>
                 <ResponsiveContainer width="100%" height={180}>
                     <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                        <XAxis dataKey="hour" tick={{ fill: 'rgba(255,255,255,0.12)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={30} />
-                        <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} />
-                        <Bar dataKey="watts" radius={[1, 1, 0, 0]}>{chartData.map((e, i) => <Cell key={i} fill={e.isPeak ? '#0066cc' : 'rgba(255,255,255,0.04)'} />)}</Bar>
+                        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="hour" tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={36} />
+                        <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} />
+                        <Bar dataKey="watts" radius={[1, 1, 0, 0]}>{chartData.map((e, i) => <Cell key={i} fill={e.isPeak ? '#0066cc' : 'rgba(255,255,255,0.25)'} />)}</Bar>
                     </BarChart>
                 </ResponsiveContainer>
             </div>

@@ -19,16 +19,16 @@ export default function RewardsTab({ gamification, user, loading }) {
             <div className="dash-grid" style={{ gridTemplateColumns: '8fr 2fr 2fr', marginBottom: '1rem' }}>
                 <div className="dash-c">
                     <div className="dash-lbl">Experience</div>
-                    <div style={{ width: '100%', height: 3, background: 'rgba(255,255,255,0.04)', borderRadius: 1, overflow: 'hidden', marginTop: '.5rem' }}>
-                        <motion.div style={{ height: '100%', background: '#0047AB', borderRadius: 1 }} initial={{ width: 0 }} animate={{ width: `${xp.progress || 0}%` }} transition={{ duration: 1 }} />
+                    <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden', marginTop: '.5rem' }}>
+                        <motion.div style={{ height: '100%', background: '#0047AB', borderRadius: 2 }} initial={{ width: 0 }} animate={{ width: `${xp.progress || 0}%` }} transition={{ duration: 1 }} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '.3rem', fontFamily: "'DM Mono', monospace", fontSize: '.45rem', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '.4rem', fontFamily: "'DM Mono', monospace", fontSize: '.6rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '1px' }}>
                         <span>Lvl {xp.level}</span><span>Lvl {xp.level + 1}</span>
                     </div>
                 </div>
                 <div className="dash-c">
                     <div className="dash-lbl">Badges</div>
-                    <div className="n-lg">{unlocked}<span style={{ fontSize: '.7rem', color: 'rgba(255,255,255,0.2)' }}>/{total}</span></div>
+                    <div className="n-lg">{unlocked}<span style={{ fontSize: '.85rem', color: 'rgba(255,255,255,0.55)' }}>/{total}</span></div>
                 </div>
                 <div className="dash-c">
                     <div className="dash-lbl">Challenges</div>
@@ -42,13 +42,13 @@ export default function RewardsTab({ gamification, user, loading }) {
                 {/* Badges */}
                 <div className="dash-c">
                     <div className="dash-lbl">Achievements <span className="an-count">{unlocked} unlocked</span></div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.03)', marginTop: '.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.1)', marginTop: '.5rem' }}>
                         {(achs.achievements || []).map(b => (
-                            <div key={b.id} style={{ background: '#050508', padding: '.7rem .5rem', textAlign: 'center', opacity: b.unlocked ? 1 : 0.15 }}>
-                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '.9rem', fontWeight: 500, color: b.unlocked ? '#fff' : 'rgba(255,255,255,0.3)', marginBottom: '.25rem' }}>
+                            <div key={b.id} style={{ background: '#050508', padding: '.7rem .5rem', textAlign: 'center', opacity: b.unlocked ? 1 : 0.45 }}>
+                                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '1rem', fontWeight: 500, color: b.unlocked ? '#fff' : 'rgba(255,255,255,0.55)', marginBottom: '.3rem' }}>
                                     {b.name?.charAt(0)?.toUpperCase() || '?'}
                                 </div>
-                                <div style={{ fontSize: '.58rem', fontWeight: 500, color: 'rgba(255,255,255,0.6)' }}>{b.name}</div>
+                                <div style={{ fontSize: '.7rem', fontWeight: 500, color: b.unlocked ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.55)' }}>{b.name}</div>
                             </div>
                         ))}
                     </div>
@@ -67,7 +67,7 @@ export default function RewardsTab({ gamification, user, loading }) {
                                         <div className="an-date">{c.name}</div>
                                         <div className="an-detail">{c.description || c.desc}</div>
                                     </div>
-                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.6rem', color: pct >= 100 ? '#00aaff' : 'rgba(255,255,255,0.35)' }}>{pct}%</span>
+                                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.75rem', color: pct >= 100 ? '#00aaff' : 'rgba(255,255,255,0.7)' }}>{pct}%</span>
                                 </div>
                             );
                         })}
@@ -84,11 +84,11 @@ export default function RewardsTab({ gamification, user, loading }) {
                             {lb.map(e => {
                                 const isYou = e.userId === user?.id || e.name === user?.name;
                                 return (
-                                    <div key={e.rank} style={{ display: 'flex', alignItems: 'center', gap: '.6rem', padding: '.45rem 0', borderBottom: '1px solid rgba(255,255,255,0.025)', background: isYou ? 'rgba(0,71,171,0.06)' : 'transparent', paddingLeft: isYou ? '.5rem' : 0, borderRadius: isYou ? 2 : 0 }}>
-                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.55rem', color: 'rgba(255,255,255,0.2)', width: 20 }}>#{e.rank}</span>
-                                        <span style={{ flex: 1, fontSize: '.78rem', fontWeight: isYou ? 500 : 400, color: isYou ? '#fff' : 'rgba(255,255,255,0.6)' }}>{e.name}</span>
-                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.58rem', color: '#00aaff' }}>{e.savingsPercent}%</span>
-                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.55rem', color: 'rgba(255,255,255,0.2)', width: 40, textAlign: 'right' }}>{e.points}</span>
+                                    <div key={e.rank} style={{ display: 'flex', alignItems: 'center', gap: '.6rem', padding: '.55rem 0', borderBottom: '1px solid rgba(255,255,255,0.08)', background: isYou ? 'rgba(0,71,171,0.15)' : 'transparent', paddingLeft: isYou ? '.5rem' : 0, borderRadius: isYou ? 2 : 0 }}>
+                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.7rem', color: 'rgba(255,255,255,0.55)', width: 24 }}>#{e.rank}</span>
+                                        <span style={{ flex: 1, fontSize: '.85rem', fontWeight: isYou ? 500 : 400, color: isYou ? '#fff' : 'rgba(255,255,255,0.85)' }}>{e.name}</span>
+                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.72rem', color: '#00aaff' }}>{e.savingsPercent}%</span>
+                                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '.7rem', color: 'rgba(255,255,255,0.6)', width: 44, textAlign: 'right' }}>{e.points}</span>
                                     </div>
                                 );
                             })}

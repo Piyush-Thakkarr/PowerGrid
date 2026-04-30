@@ -48,11 +48,11 @@ export default function AnalyticsTab({ chartData, chartKey, loading }) {
                     {loading ? <div className="ch-empty">Loading...</div> : !hasMonthly ? <div className="ch-empty">No data</div> : (
                         <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={chartData}>
-                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                                <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={30} />
-                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 12 }} />
-                                <Bar dataKey="units" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.7} />
+                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                                <XAxis dataKey={chartKey} tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={36} />
+                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} />
+                                <Bar dataKey="units" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.85} />
                             </BarChart>
                         </ResponsiveContainer>
                     )}
@@ -66,11 +66,11 @@ export default function AnalyticsTab({ chartData, chartKey, loading }) {
                     {daily.loading ? <div className="ch-empty">Loading...</div> : daily.error ? <div className="ch-empty" style={{ color: '#ff6b6b' }}>{daily.error}</div> : daily.data.length === 0 ? <div className="ch-empty">No daily data</div> : (
                         <ResponsiveContainer width="100%" height={160}>
                             <BarChart data={daily.data}>
-                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                                <XAxis dataKey={daily.chartKey} tick={{ fill: 'rgba(255,255,255,0.15)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={25} />
-                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 11 }} />
-                                <Bar dataKey="units" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.6} />
+                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                                <XAxis dataKey={daily.chartKey} tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={32} />
+                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} />
+                                <Bar dataKey="units" fill="#0047AB" radius={[1, 1, 0, 0]} fillOpacity={0.85} />
                             </BarChart>
                         </ResponsiveContainer>
                     )}
@@ -82,15 +82,15 @@ export default function AnalyticsTab({ chartData, chartKey, loading }) {
                             <AreaChart data={hourly.data}>
                                 <defs>
                                     <linearGradient id="hg" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#0047AB" stopOpacity={0.15} />
-                                        <stop offset="100%" stopColor="#0047AB" stopOpacity={0} />
+                                        <stop offset="0%" stopColor="#0047AB" stopOpacity={0.5} />
+                                        <stop offset="100%" stopColor="#0047AB" stopOpacity={0.05} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.02)" />
-                                <XAxis dataKey={hourly.chartKey} tick={{ fill: 'rgba(255,255,255,0.12)', fontSize: 8, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} interval={3} />
-                                <YAxis tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 9, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={25} />
-                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 3, fontSize: 11 }} />
-                                <Area type="monotone" dataKey="units" stroke="#0066cc" fill="url(#hg)" strokeWidth={1.2} dot={false} />
+                                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.08)" />
+                                <XAxis dataKey={hourly.chartKey} tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} interval={3} />
+                                <YAxis tick={{ fill: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: "'DM Mono', monospace" }} axisLine={false} tickLine={false} width={32} />
+                                <Tooltip cursor={false} contentStyle={{ background: '#050508', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 3, fontSize: 12, color: '#fff' }} />
+                                <Area type="monotone" dataKey="units" stroke="#0066cc" fill="url(#hg)" strokeWidth={1.8} dot={false} />
                             </AreaChart>
                         </ResponsiveContainer>
                     )}

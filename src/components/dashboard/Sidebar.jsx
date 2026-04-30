@@ -26,7 +26,7 @@ export default function Sidebar({ tab, onTabChange, user, onLogout }) {
             </div>
             <div className="dash-side-bottom">
                 <button className="dash-side-btn" onClick={() => onTabChange('profile')}><Settings size={15} strokeWidth={1.5} /></button>
-                <button className="dash-side-btn" onClick={onLogout} style={{ color: 'rgba(255,255,255,0.15)' }}><LogOut size={14} strokeWidth={1.5} /></button>
+                <button className="dash-side-btn" onClick={onLogout}><LogOut size={14} strokeWidth={1.5} /></button>
                 <div className="dash-side-av">{user?.name?.charAt(0)?.toUpperCase() || '?'}</div>
             </div>
         </div>

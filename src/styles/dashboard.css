@@ -51,13 +51,13 @@
   background: none;
   border: none;
   border-radius: 3px;
-  color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.55);
   cursor: pointer;
   position: relative;
 }
 
 .dash-side-btn:hover {
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.85);
 }
 
 .dash-side-btn.active {
@@ -90,9 +90,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .5rem;
+  font-size: .55rem;
   font-family: 'DM Mono', monospace;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.65);
 }
 
 /* ---- MAIN ---- */
@@ -119,15 +119,15 @@
 
 .dash-hd-meta {
   font-family: 'DM Mono', monospace;
-  font-size: .55rem;
-  color: rgba(255,255,255,0.2);
+  font-size: .7rem;
+  color: rgba(255,255,255,0.6);
   letter-spacing: .5px;
   margin-top: 3px;
 }
 
 .dash-hd-tag {
   font-family: 'DM Mono', monospace;
-  font-size: .5rem;
+  font-size: .65rem;
   color: #00aaff;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -146,8 +146,8 @@
 
 .dash-hd-date {
   font-family: 'DM Mono', monospace;
-  font-size: .55rem;
-  color: rgba(255,255,255,0.2);
+  font-size: .7rem;
+  color: rgba(255,255,255,0.6);
 }
 
 .dash-hd-right {
@@ -175,9 +175,9 @@
 /* ---- TYPOGRAPHY ---- */
 .dash-lbl {
   font-family: 'DM Mono', monospace;
-  font-size: .5rem;
-  color: rgba(255,255,255,0.22);
-  letter-spacing: 2.5px;
+  font-size: .65rem;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 2px;
   text-transform: uppercase;
   margin-bottom: .65rem;
   display: flex;
@@ -186,8 +186,8 @@
 }
 
 .dash-lbl-r {
-  font-size: .5rem;
-  color: rgba(255,255,255,0.12);
+  font-size: .65rem;
+  color: rgba(255,255,255,0.4);
   cursor: pointer;
   letter-spacing: 0;
 }
@@ -201,11 +201,11 @@
 }
 
 .n-hero .u {
-  font-size: .9rem;
+  font-size: 1rem;
   font-weight: 400;
-  color: rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.55);
   letter-spacing: 0;
-  margin-left: 1px;
+  margin-left: 2px;
 }
 
 .n-lg {
@@ -217,8 +217,8 @@
 }
 
 .dash-sub {
-  font-size: .6rem;
-  color: rgba(255,255,255,0.2);
+  font-size: .72rem;
+  color: rgba(255,255,255,0.65);
   margin-top: .4rem;
 }
 
@@ -244,14 +244,14 @@
 }
 
 .pw-m { display: flex; flex-direction: column; gap: 2px; }
-.pw-m-l { font-family: 'DM Mono', monospace; font-size: .45rem; color: rgba(255,255,255,0.18); text-transform: uppercase; letter-spacing: 1.5px; }
-.pw-m-v { font-family: 'DM Mono', monospace; font-size: .82rem; color: rgba(255,255,255,0.45); }
+.pw-m-l { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 1.5px; }
+.pw-m-v { font-family: 'DM Mono', monospace; font-size: .95rem; color: rgba(255,255,255,0.95); }
 
 /* ---- CHART ---- */
 .ch-wrap { padding: 0; }
-.ch-empty { text-align: center; padding: 2.5rem; font-family: 'DM Mono', monospace; font-size: .65rem; color: rgba(255,255,255,0.15); }
+.ch-empty { text-align: center; padding: 2.5rem; font-family: 'DM Mono', monospace; font-size: .8rem; color: rgba(255,255,255,0.55); }
 .ch-val { margin-top: .5rem; display: flex; align-items: baseline; gap: .35rem; }
-.ch-val span { font-size: .58rem; color: rgba(255,255,255,0.2); }
+.ch-val span { font-size: .72rem; color: rgba(255,255,255,0.6); }
 
 /* ---- DAILY BARS ---- */
 .db-wrap { display: flex; align-items: flex-end; gap: 3px; height: 110px; margin-top: .6rem; }
@@ -261,47 +261,50 @@
 .db-a { background: #0047AB; opacity: .75; }
 .db-b { background: rgba(255,255,255,0.04); }
 .db-hi { opacity: 1; background: #0066cc; }
-.db-day { font-family: 'DM Mono', monospace; font-size: .45rem; color: rgba(255,255,255,0.15); }
+.db-day { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(255,255,255,0.6); }
 
 /* ---- ANOMALY LIST ---- */
 .an-list { display: flex; flex-direction: column; margin-top: .35rem; }
-.an-row { display: flex; align-items: center; gap: .55rem; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,0.025); }
+.an-row { display: flex; align-items: center; gap: .55rem; padding: .55rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .an-row:last-child { border: none; }
-.an-bar { width: 1.5px; height: 20px; border-radius: .5px; flex-shrink: 0; }
+.an-bar { width: 2px; height: 22px; border-radius: 1px; flex-shrink: 0; }
 .an-info { flex: 1; }
-.an-date { font-size: .72rem; color: rgba(255,255,255,0.7); }
-.an-detail { font-size: .52rem; color: rgba(255,255,255,0.18); margin-top: 1px; }
-.an-pct { font-family: 'DM Mono', monospace; font-size: .6rem; flex-shrink: 0; color: #ff6b6b; }
-.an-count { font-family: 'DM Mono', monospace; font-size: .45rem; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+.an-date { font-size: .8rem; color: rgba(255,255,255,0.92); }
+.an-detail { font-size: .68rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.an-pct { font-family: 'DM Mono', monospace; font-size: .72rem; flex-shrink: 0; color: #ff6b6b; }
+.an-count { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
 
 /* ---- FORECAST ---- */
 .fc-row { display: flex; justify-content: space-between; margin-top: .5rem; gap: 2px; }
 .fc-day { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.fc-d { font-family: 'DM Mono', monospace; font-size: .42rem; color: rgba(255,255,255,0.15); letter-spacing: 1.5px; }
-.fc-bar { width: 4px; border-radius: 1px; background: #0047AB; opacity: .6; }
-.fc-v { font-family: 'DM Mono', monospace; font-size: .7rem; color: rgba(255,255,255,0.4); }
+.fc-d { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(255,255,255,0.6); letter-spacing: 1.5px; }
+.fc-bar { width: 6px; border-radius: 2px; background: #0047AB; opacity: .9; }
+.fc-v { font-family: 'DM Mono', monospace; font-size: .8rem; color: rgba(255,255,255,0.85); }
 
 /* ---- BILL ---- */
 .bl-rows { margin-top: .35rem; }
-.bl-row { display: flex; justify-content: space-between; padding: .3rem 0; font-size: .72rem; border-bottom: 1px solid rgba(255,255,255,0.025); }
+.bl-row { display: flex; justify-content: space-between; padding: .4rem 0; font-size: .8rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .bl-row:last-child { border: none; }
-.bl-l { color: rgba(255,255,255,0.3); }
-.bl-r { font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.5); font-size: .7rem; }
-.bl-total { border-top: 1px solid rgba(255,255,255,0.06); border-bottom: none; padding-top: .45rem; margin-top: .15rem; }
-.bl-total .bl-l { color: rgba(255,255,255,0.85); font-weight: 500; }
-.bl-total .bl-r { color: #fff; font-weight: 500; font-size: .85rem; letter-spacing: -.5px; }
+.bl-l { color: rgba(255,255,255,0.7); }
+.bl-r { font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.92); font-size: .8rem; }
+.bl-total { border-top: 1px solid rgba(255,255,255,0.18); border-bottom: none; padding-top: .55rem; margin-top: .15rem; }
+.bl-total .bl-l { color: #fff; font-weight: 500; }
+.bl-total .bl-r { color: #fff; font-weight: 500; font-size: .95rem; letter-spacing: -.5px; }
 
 /* ---- RECHARTS OVERRIDES ---- */
-.recharts-cursor { fill: rgba(255,255,255,0.03) !important; }
+.recharts-cursor { fill: rgba(255,255,255,0.06) !important; }
 .recharts-active-dot circle { fill: #0066cc !important; stroke: #000 !important; }
+.recharts-tooltip-item,
+.recharts-tooltip-label,
+.recharts-default-tooltip { color: #fff !important; }
 
 /* ---- TOOLTIP ---- */
-.tt { background: #050508 !important; border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 3px !important; padding: .3rem .5rem !important; }
-.tt-l { font-family: 'DM Mono', monospace; font-size: .5rem; color: rgba(255,255,255,0.2); }
-.tt-v { font-family: 'DM Mono', monospace; font-size: .75rem; color: #fff; }
+.tt { background: #050508 !important; border: 1px solid rgba(255,255,255,0.18) !important; border-radius: 3px !important; padding: .4rem .6rem !important; display: flex; flex-direction: column; gap: 2px; }
+.tt-l { font-family: 'DM Mono', monospace; font-size: .65rem; color: rgba(255,255,255,0.65); }
+.tt-v { font-family: 'DM Mono', monospace; font-size: .85rem; color: #fff; }
 
 /* ---- LOADING ---- */
-.dash-loading { font-family: 'DM Mono', monospace; font-size: .65rem; color: rgba(255,255,255,0.15); padding: 2rem; text-align: center; }
+.dash-loading { font-family: 'DM Mono', monospace; font-size: .8rem; color: rgba(255,255,255,0.6); padding: 2rem; text-align: center; }
 .dash-error { font-family: 'DM Mono', monospace; font-size: .65rem; color: #ff6b6b; padding: 2rem; text-align: center; }
 
 /* ---- MOBILE ---- */
@@ -324,7 +327,7 @@
     background: #000; border-top: 1px solid rgba(255,255,255,0.06);
     padding: .3rem 0; justify-content: space-around;
   }
-  .dash-mobile-tab { background: none; border: none; color: rgba(255,255,255,0.2); font-size: .45rem; font-family: 'DM Mono', monospace; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .25rem .35rem; cursor: pointer; }
+  .dash-mobile-tab { background: none; border: none; color: rgba(255,255,255,0.55); font-size: .55rem; font-family: 'DM Mono', monospace; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: .25rem .35rem; cursor: pointer; }
   .dash-mobile-tab.active { color: #00aaff; }
   .dash-mobile-tab-icon { font-size: .9rem; }
 }
