@@ -9,6 +9,7 @@ vi.mock('../lib/supabase', () => ({
             }),
         },
     },
+    getCachedToken: vi.fn(() => 'test-jwt-token'),
 }));
 
 // Must import after mock
