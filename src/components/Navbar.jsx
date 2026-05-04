@@ -48,20 +48,15 @@ export default function Navbar() {
                 <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
                 <a href="#how" onClick={() => setMenuOpen(false)}>Process</a>
                 <a href="#metrics" onClick={() => setMenuOpen(false)}>Impact</a>
-                {user ? (
+                {user && (
                     <Link to="/dashboard" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-                ) : (
-                    <Link to="/login" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>Sign In</Link>
                 )}
             </div>
             <div className="nav-auth">
                 {user ? (
                     <Link to="/dashboard" className="nav-btn">Dashboard</Link>
                 ) : (
-                    <>
-                        <Link to="/login" className="nav-login">Sign In</Link>
-                        <Link to="/signup" className="nav-btn">Get Started</Link>
-                    </>
+                    <Link to="/signup" className="nav-btn">Get Started</Link>
                 )}
             </div>
             <button className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">

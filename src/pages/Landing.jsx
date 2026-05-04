@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PowerGrid from '../components/PowerGrid';
-import ParticleText from '../components/ParticleText';
 import Cursor from '../components/Cursor';
 import About from '../components/About';
 import Features from '../components/Features';
@@ -36,21 +35,17 @@ export default function Landing() {
                 </div>
             </div>
 
-            <section className="hero">
-                <div className="hero-label">Interactive Engine</div>
-                <ParticleText />
+            <section className="hero hero-center">
+                <h1 className="brand-title" aria-label="PowerGrid">
+                    <span className="brand-title-text">PowerGrid</span>
+                </h1>
+                <p className="static-tagline">Energy That Thinks Itself.</p>
                 <div className="hero-body">
-                    <p className="hero-sub">
-                        The power grid reconstructed in WebGL. Experience magnetic repulsion and recursive raycasted lightnings.
-                    </p>
                     <div className="hero-actions">
                         {user ? (
                             <Link to="/dashboard" className="btn-p"><span>Go to Dashboard</span></Link>
                         ) : (
-                            <>
-                                <Link to="/signup" className="btn-p"><span>Get Started</span></Link>
-                                <Link to="/login" className="btn-s">Sign In</Link>
-                            </>
+                            <Link to="/signup" className="btn-p"><span>Get Started</span></Link>
                         )}
                     </div>
                 </div>

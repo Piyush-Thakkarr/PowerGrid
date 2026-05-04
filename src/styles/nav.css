@@ -42,6 +42,51 @@ nav.s {
   height: 100%;
 }
 
+.logo-mark svg circle {
+  transform-origin: 14px 14px;
+  animation: logoCorePulse 2.6s ease-in-out infinite;
+}
+
+@keyframes logoCorePulse {
+  0%, 100% { r: 2;   opacity: 1; }
+  50%      { r: 2.8; opacity: .6; }
+}
+
+.brand-name {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    var(--sky) 35%,
+    var(--electric) 50%,
+    var(--sky) 65%,
+    #ffffff 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  opacity: 0;
+  animation:
+    brandNameReveal .9s .15s cubic-bezier(.2,.7,.2,1) forwards,
+    brandNameShimmer 7s 1.1s linear infinite;
+  transition: filter .25s ease;
+}
+
+.logo:hover .brand-name {
+  filter: drop-shadow(0 0 8px rgba(0, 170, 255, .55));
+}
+
+@keyframes brandNameReveal {
+  0%   { opacity: 0; letter-spacing: 10px; transform: translateY(2px); }
+  100% { opacity: 1; letter-spacing: 4px;  transform: translateY(0);  }
+}
+
+@keyframes brandNameShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 220% center; }
+}
+
 .nav-links {
   display: flex;
   gap: 2.5rem;
