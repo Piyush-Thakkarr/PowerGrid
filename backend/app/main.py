@@ -25,9 +25,7 @@ logger = logging.getLogger("powergrid")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.execute(text("SELECT 1"))
-    logger.info("Database connected, server starting")
+    logger.info("Server starting")
     yield
     await engine.dispose()
     logger.info("Server shutdown complete")
