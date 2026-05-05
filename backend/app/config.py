@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     supabase_jwt_secret: str
 
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,https://power-grid-ruddy.vercel.app"
 
     session_secret: str = ""
     admin_email: str = ""
