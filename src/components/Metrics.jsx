@@ -1,39 +1,51 @@
 import React, { useRef } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useCountUp } from '../hooks/useCountUp';
 
 export default function Metrics() {
     const sectionRef = useRef(null);
     useScrollReveal(sectionRef);
 
+    const [savings, savingsRef] = useCountUp(78000);
+    const [co2, co2Ref] = useCountUp(12);
+    const [uptime, uptimeRef] = useCountUp(99.98, { decimals: 2 });
+    const [opts, optsRef] = useCountUp(320);
+
+    const items = [
+        { ref: savingsRef, label: 'Average annual saving per household', value: `₹${savings.toLocaleString('en-IN')}`, trend: '↑ 34% vs prior year' },
+        { ref: co2Ref, label: 'Tonnes of CO₂ avoided across the network', value: `${co2}K`, trend: '↑ Growing daily' },
+        { ref: uptimeRef, label: 'AI uptime since launch', value: `${uptime}%`, trend: '99.98% SLA' },
+        { ref: optsRef, label: 'Optimization decisions taken every day', value: `${opts}K`, trend: '↑ Scaling fast' },
+    ];
+
     return (
-        <section className="metrics" id="metrics" ref={sectionRef}>
+        <section className="metrics metrics-list" id="metrics" ref={sectionRef}>
             <div className="wrap">
-                <div className="rv">
-                    <div className="stag">Impact</div>
+                <div className="metrics-head rv">
+                    <div className="stag stag-clean">Impact</div>
                     <h2 className="sh2">Numbers that <em>don't lie.</em></h2>
+                    <p className="metrics-lead">Real data from twelve thousand active households — measured, audited and growing every single day.</p>
                 </div>
-                <div className="metrics-row rv" style={{ transitionDelay: '.1s' }}>
-                    <div className="mtr">
-                        <span className="mtr-l">Avg Annual Saving</span>
-                        <span className="mtr-v"><span className="mn">₹78,000</span></span>
-                        <div className="mtr-t up">↑ 34% vs prior year</div>
-                    </div>
-                    <div className="mtr">
-                        <span className="mtr-l">Tonnes CO₂ Avoided</span>
-                        <span className="mtr-v"><span className="mn">12K</span></span>
-                        <div className="mtr-t up">↑ Growing daily</div>
-                    </div>
-                    <div className="mtr">
-                        <span className="mtr-l">AI Uptime</span>
-                        <span className="mtr-v"><span className="mn">99.98</span>%</span>
-                        <div className="mtr-t up">99.98% SLA</div>
-                    </div>
-                    <div className="mtr">
-                        <span className="mtr-l">Optimizations / Day</span>
-                        <span className="mtr-v"><span className="mn">320K</span></span>
-                        <div className="mtr-t up">↑ Scaling fast</div>
-                    </div>
-                </div>
+
+                <ul className="met-bullets">
+                    {items.map((m, i) => (
+                        <li
+                            key={m.label}
+                            ref={m.ref}
+                            className="met-bullet rv"
+                            style={{ transitionDelay: `${0.15 + i * 0.2}s` }}
+                        >
+                            <span className="met-bullet-mark" aria-hidden="true">◆</span>
+                            <div className="met-bullet-body">
+                                <div className="met-bullet-row">
+                                    <span className="met-bullet-value">{m.value}</span>
+                                    <span className="met-bullet-trend">{m.trend}</span>
+                                </div>
+                                <div className="met-bullet-label">{m.label}</div>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </section>
     );
