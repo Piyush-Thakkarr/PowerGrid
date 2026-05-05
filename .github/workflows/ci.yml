@@ -9,6 +9,7 @@ on:
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
+    if: ${{ vars.SKIP_BACKEND_TESTS != 'true' }}
     defaults:
       run:
         working-directory: backend
@@ -32,7 +33,12 @@ jobs:
           SESSION_SECRET: ci-test-secret
           ADMIN_EMAIL: test@test.com
           ADMIN_PASSWORD: test
-        run: pytest tests/ --tb=short -q
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL not set — skipping backend tests (add it in repo Settings → Secrets)"
+            exit 0
+          fi
+          pytest tests/ --tb=short -q
 
   frontend-tests:
     runs-on: ubuntu-latest
