@@ -45,6 +45,7 @@ def user_to_response(user: User, profile: UserProfile) -> UserResponse:
         email=user.email or "",
         phone=user.phone,
         name=user.name or "",
+        role=user.role or "consumer",
         householdSize=profile.household_size if profile else 4,
         state=profile.state if profile else "Gujarat",
         tariffPlan=profile.tariff_plan if profile else "Residential",

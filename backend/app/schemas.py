@@ -20,6 +20,7 @@ class UserResponse(BaseModel):
     email: str
     phone: Optional[str] = None
     name: str
+    role: str = "consumer"
     householdSize: int
     state: str
     tariffPlan: str
