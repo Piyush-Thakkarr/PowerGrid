@@ -50,7 +50,7 @@ export default function Features() {
                         >
                             <span className="feat-bullet-mark" aria-hidden="true">◆</span>
                             <div className="feat-bullet-body">
-                                <div className="feat-bullet-title">{f.name}</div>
+                                <div className="feat-bullet-title"><span className="brand-grad">{f.name}</span></div>
                                 <div className="feat-bullet-desc">{f.desc}</div>
                             </div>
                         </li>

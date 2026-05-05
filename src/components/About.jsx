@@ -24,7 +24,7 @@ export default function About() {
                 <div className="about-grid">
                     <div className="about-txt rv">
                         <div className="stag stag-clean">What it is</div>
-                        <h2 className="sh2">Your Grid, <em>Amplified.</em></h2>
+                        <h2 className="sh2"><span className="brand-grad">Your Grid</span></h2>
                         <p className="about-lead">PowerGrid connects to your smart meter, solar, and EV to build a live model of your energy world. Our AI finds every inefficiency, every wasted watt and eliminates it silently in the background. No new hardware. No behaviour change. Just intelligence applied to your existing infrastructure.</p>
                     </div>
 

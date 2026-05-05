@@ -12,10 +12,10 @@ export default function Metrics() {
     const [opts, optsRef] = useCountUp(320);
 
     const items = [
-        { ref: savingsRef, label: 'Average annual saving per household', value: `₹${savings.toLocaleString('en-IN')}`, trend: '↑ 34% vs prior year' },
-        { ref: co2Ref, label: 'Tonnes of CO₂ avoided across the network', value: `${co2}K`, trend: '↑ Growing daily' },
-        { ref: uptimeRef, label: 'AI uptime since launch', value: `${uptime}%`, trend: '99.98% SLA' },
-        { ref: optsRef, label: 'Optimization decisions taken every day', value: `${opts}K`, trend: '↑ Scaling fast' },
+        { ref: savingsRef, label: 'Average annual saving per household', value: `₹${savings.toLocaleString('en-IN')}` },
+        { ref: co2Ref, label: 'Tonnes of CO₂ avoided across the network', value: `${co2}K` },
+        { ref: uptimeRef, label: 'AI uptime since launch', value: `${uptime}%` },
+        { ref: optsRef, label: 'Optimization decisions taken every day', value: `${opts}K` },
     ];
 
     return (
@@ -39,7 +39,6 @@ export default function Metrics() {
                             <div className="met-bullet-body">
                                 <div className="met-bullet-row">
                                     <span className="met-bullet-value">{m.value}</span>
-                                    <span className="met-bullet-trend">{m.trend}</span>
                                 </div>
                                 <div className="met-bullet-label">{m.label}</div>
                             </div>
