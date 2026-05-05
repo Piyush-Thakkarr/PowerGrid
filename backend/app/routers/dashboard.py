@@ -10,6 +10,13 @@ from app.services import consumption_service, billing_service, comparison_servic
 router = APIRouter()
 
 
+async def _safe_call(coro):
+    try:
+        return await coro
+    except Exception:
+        return None
+
+
 @router.get("")
 async def get_dashboard(
     user=Depends(get_current_user),
@@ -20,9 +27,9 @@ async def get_dashboard(
     monthly = await consumption_service.get_monthly(db, user.id, 6)
     hourly = await consumption_service.get_hourly(db, user.id, None)
     heatmap = await consumption_service.get_heatmap(db, user.id, 30)
-    billing = await billing_service.calculate_bill(db, user.id, None, None)
+    billing = await _safe_call(billing_service.calculate_bill(db, user.id, None, None))
     bill_history = await billing_service.get_bill_history(db, user.id, 6)
-    comparison = await comparison_service.get_comparison(db, user.id)
+    comparison = await _safe_call(comparison_service.get_comparison(db, user.id))
     achievements = await gamification_service.get_achievements(db, user.id)
     challenges = await gamification_service.get_challenges(db, user.id)
     xp = await gamification_service.get_user_xp(db, user.id)

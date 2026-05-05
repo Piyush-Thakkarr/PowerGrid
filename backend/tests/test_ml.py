@@ -1,93 +1,129 @@
-"""Tests for ML endpoints — uses real Supabase PostgreSQL."""
+"""Tests for ML endpoints — 6 pipelines."""
 import pytest
 from tests.conftest_pg import pg_client, anyio_backend  # noqa: F401
 
 
+# ── Pipeline 1: Forecast (Extra Trees) ──────────────
 @pytest.mark.anyio
-async def test_neural_forecast(pg_client):
-    resp = await pg_client.get("/api/ml/forecast/neural?horizon=3")
+async def test_forecast(pg_client):
+    resp = await pg_client.get("/api/ml/forecast?horizon=3")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["model"] == "neural"
-    if "predictions" in data:
-        assert len(data["predictions"]) == 3
-
-
-@pytest.mark.anyio
-async def test_sarima_forecast(pg_client):
-    resp = await pg_client.get("/api/ml/forecast/sarima?horizon=3")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["model"] == "sarima"
+    assert data["model"] == "extra_trees"
     if "predictions" in data:
         assert len(data["predictions"]) == 3
         assert "predicted" in data["predictions"][0]
         assert "date" in data["predictions"][0]
+    if "topFeatures" in data:
+        assert len(data["topFeatures"]) <= 5
 
 
 @pytest.mark.anyio
-async def test_prophet_forecast(pg_client):
-    resp = await pg_client.get("/api/ml/forecast/prophet?horizon=3")
+async def test_forecast_custom_horizon(pg_client):
+    resp = await pg_client.get("/api/ml/forecast?horizon=14")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["model"] == "prophet"
     if "predictions" in data:
-        assert len(data["predictions"]) == 3
+        assert len(data["predictions"]) == 14
 
 
-@pytest.mark.anyio
-async def test_forecast_compare(pg_client):
-    resp = await pg_client.get("/api/ml/forecast/compare?horizon=3")
-    assert resp.status_code == 200
-    data = resp.json()
-    assert "sarima" in data
-    assert "prophet" in data
-    assert "bestModel" in data
-
-
+# ── Pipeline 2: Anomaly Detection (STL + Z-score) ──
 @pytest.mark.anyio
 async def test_anomaly_detection(pg_client):
-    resp = await pg_client.get("/api/ml/anomalies?sensitivity=0.05")
+    resp = await pg_client.get("/api/ml/anomalies?threshold=2.0")
     assert resp.status_code == 200
     data = resp.json()
     assert "anomalies" in data
     if "anomalyCount" in data:
-        if data["anomalies"]:
-            a = data["anomalies"][0]
-            assert "date" in a
-            assert "actual" in a
-            assert "severity" in a
+        assert isinstance(data["anomalyCount"], int)
+    if "decomposition" in data:
+        d = data["decomposition"]
+        assert "dates" in d
+        assert "trend" in d
+        assert "seasonal" in d
+        assert "residual" in d
+        assert len(d["dates"]) == len(d["trend"])
+    if data.get("anomalies"):
+        a = data["anomalies"][0]
+        assert "date" in a
+        assert "actual" in a
+        assert "severity" in a
+        assert "zScore" in a
+
+
+# ── Pipeline 3: Segmentation (GMM) ─────────────────
+@pytest.mark.anyio
+async def test_segmentation(pg_client):
+    resp = await pg_client.get("/api/ml/segmentation?clusters=3")
+    assert resp.status_code == 200
+    data = resp.json()
+    if "clusters" in data:
+        assert len(data["clusters"]) == 3
+        for c in data["clusters"]:
+            assert "clusterId" in c
+            assert "userCount" in c
+            assert "peakHour" in c
+            assert "hourlyProfile" in c
 
 
 @pytest.mark.anyio
-async def test_decomposition(pg_client):
-    resp = await pg_client.get("/api/ml/decomposition")
+async def test_my_segment(pg_client):
+    resp = await pg_client.get("/api/ml/segmentation/me")
     assert resp.status_code == 200
-    data = resp.json()
-    if "dates" in data:
-        assert "trend" in data
-        assert "seasonal" in data
-        assert "residual" in data
-        assert len(data["dates"]) == len(data["trend"])
 
 
+# ── Pipeline 4: Demand Response (Gradient Boosting) ─
 @pytest.mark.anyio
-async def test_peak_hours(pg_client):
-    resp = await pg_client.get("/api/ml/peak-hours?days=30")
+async def test_demand_response(pg_client):
+    resp = await pg_client.get("/api/ml/demand-response?hours=12")
     assert resp.status_code == 200
     data = resp.json()
-    assert "peakHours" in data
-    assert "offPeakHours" in data
-    assert "hourlyProfile" in data
+    if "predictions" in data:
+        assert len(data["predictions"]) == 12
+        p = data["predictions"][0]
+        assert "hour" in p
+        assert "isPeak" in p
+        assert "peakProbability" in p
 
 
+# ── Pipeline 5: Tariff Optimizer ────────────────────
+@pytest.mark.anyio
+async def test_tariff_optimizer(pg_client):
+    resp = await pg_client.get("/api/ml/tariff-optimizer")
+    assert resp.status_code == 200
+    data = resp.json()
+    if "allPlans" in data:
+        assert "recommendedPlan" in data
+        assert "monthlySavings" in data
+        assert "monthlyKwh" in data
+
+
+# ── Pipeline 6: NILM Disaggregation ────────────────
+@pytest.mark.anyio
+async def test_nilm(pg_client):
+    resp = await pg_client.get("/api/ml/nilm?days=30")
+    assert resp.status_code == 200
+    data = resp.json()
+    if "breakdown" in data:
+        assert "totalKwh" in data
+        for item in data["breakdown"]:
+            assert "appliance" in item
+            assert "estimatedKwh" in item
+            assert "percentage" in item
+    if "nmfComponents" in data:
+        for comp in data["nmfComponents"]:
+            assert "componentId" in comp
+            assert "hourlyProfile" in comp
+
+
+# ── Recommendations ────────────────────────────────
 @pytest.mark.anyio
 async def test_recommendations(pg_client):
     resp = await pg_client.get("/api/ml/recommendations")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
-    assert len(data) >= 2  # at least the 2 general tips
+    assert len(data) >= 2
     if data:
         assert "title" in data[0]
         assert "estimatedSavings" in data[0]

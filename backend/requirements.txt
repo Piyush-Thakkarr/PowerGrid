@@ -21,19 +21,18 @@ pandas==2.2.3
 numpy==1.26.4
 scipy==1.14.1
 
-# ML
+# ML (sklearn only — no TensorFlow/PyTorch needed)
 scikit-learn==1.5.2
 statsmodels==0.14.4
-prophet==1.1.6
-tensorflow==2.16.2
-xgboost==2.1.2
-joblib==1.4.2
+
+# Rate limiting
+slowapi==0.1.9
+
+# Logging
+python-json-logger==2.0.7
 
 # Admin
 sqladmin==0.19.0
-
-# WebSocket
-websockets==13.0
 
 # Testing
 pytest==8.3.3

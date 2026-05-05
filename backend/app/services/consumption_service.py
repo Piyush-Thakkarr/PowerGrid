@@ -6,15 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from app.models.consumption import ConsumptionData
+from app.services.helpers import get_latest_date as _get_latest_date_raw
 
 
 async def _get_latest_date(db: AsyncSession, user_id: UUID) -> str:
-    """Get the latest data timestamp for a user — used as reference point instead of NOW()."""
-    result = await db.execute(
-        text("SELECT MAX(timestamp) FROM consumption_data WHERE user_id = :uid"),
-        {"uid": str(user_id)},
-    )
-    latest = result.scalar()
+    """Get the latest data timestamp as ISO string."""
+    latest = await _get_latest_date_raw(db, user_id)
     return latest.isoformat() if latest else datetime.now().isoformat()
 
 
@@ -204,7 +201,9 @@ async def get_stats(db: AsyncSession, user_id: UUID) -> dict:
         """),
         {"uid": str(user_id)},
     )
-    row = result.one()
+    row = result.one_or_none()
+    if not row:
+        return {"thisMonthKwh": 0, "lastMonthKwh": 0, "monthChangePercent": 0, "todayKwh": 0, "peakWattsToday": 0}
     change = 0
     if row.last_month_kwh > 0:
         change = round((row.this_month_kwh - row.last_month_kwh) / row.last_month_kwh * 100, 1)

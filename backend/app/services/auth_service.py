@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User, UserProfile
-from app.schemas.auth import UserResponse
+from app.schemas import UserResponse
 
 
 async def get_or_create_user(

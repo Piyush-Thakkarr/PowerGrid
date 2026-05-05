@@ -1,0 +1,12 @@
+.env
+.env.*
+alembic.ini
+tests/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+*.md
+benchmark*.py
+test.db
+test_seed.db

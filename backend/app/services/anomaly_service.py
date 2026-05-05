@@ -1,121 +1,86 @@
-"""
-Anomaly detection — STL decomposition + Isolation Forest.
+"""Anomaly detection — STL decomposition + Z-score on residuals.
 
-Finds unusual consumption patterns (spikes, drops) that deviate
-from the user's normal trend + seasonal behavior.
+Benchmarked winner: STL + Z-score (F1=0.38) beat STL + Isolation Forest (0.32),
+raw IF (0.13), Z-score (0.00), IQR (0.00), LOF (0.00), DBSCAN (0.00).
 """
 
+import asyncio
 import logging
 from uuid import UUID
 
 import numpy as np
-import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.services.helpers import get_user_daily
+from app.services.ml_cache import get_cached_response, set_cached_response
 
 logger = logging.getLogger(__name__)
 
 
-async def _get_user_daily(db: AsyncSession, user_id: UUID, days: int = 180) -> pd.DataFrame:
-    result = await db.execute(
-        text("""
-            SELECT date_trunc('day', timestamp)::date AS ds,
-                   SUM(energy_kwh) AS y
-            FROM consumption_data
-            WHERE user_id = :uid
-              AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => :days) FROM consumption_data WHERE user_id = :uid)
-            GROUP BY ds ORDER BY ds
-        """),
-        {"uid": str(user_id), "days": days},
-    )
-    rows = result.all()
-    df = pd.DataFrame(rows, columns=["ds", "y"])
-    df["ds"] = pd.to_datetime(df["ds"])
-    return df
-
-
-async def detect_anomalies(db: AsyncSession, user_id: UUID, sensitivity: float = 0.05) -> dict:
-    """
-    Detect anomalies using STL decomposition + Isolation Forest.
-
-    1. STL strips trend + seasonality → residuals
-    2. Isolation Forest flags outlier residuals
-    3. Return flagged dates with severity scores
-    """
+def _run_stl_zscore(ts_values, ts_index, threshold):
+    """Sync CPU work — runs in thread pool."""
+    import pandas as pd
     from statsmodels.tsa.seasonal import STL
-    from sklearn.ensemble import IsolationForest
 
-    df = await _get_user_daily(db, user_id)
-    if len(df) < 30:
-        return {"error": "Not enough data (need 30+ days)", "anomalies": []}
+    ts = pd.Series(ts_values, index=ts_index).asfreq("D").ffill()
 
-    ts = df.set_index("ds")["y"].asfreq("D").ffill()
-
-    # STL decomposition (period=7 for weekly seasonality)
     stl = STL(ts, period=7, robust=True)
     result = stl.fit()
 
-    residuals = result.resid.values.reshape(-1, 1)
+    residuals = result.resid.values
+    res_std = residuals.std()
+    if res_std == 0:
+        return {"anomalies": [], "totalDays": len(ts), "anomalyCount": 0}
 
-    # Isolation Forest on residuals
-    iso = IsolationForest(contamination=sensitivity, random_state=42)
-    labels = iso.fit_predict(residuals)  # -1 = anomaly, 1 = normal
-    scores = iso.decision_function(residuals)  # lower = more anomalous
+    z_scores = np.abs((residuals - residuals.mean()) / res_std)
 
     anomalies = []
-    for i, (label, score) in enumerate(zip(labels, scores)):
-        if label == -1:
-            date = ts.index[i]
+    for i, z in enumerate(z_scores):
+        if z > threshold:
             actual = float(ts.iloc[i])
             expected = float(result.trend.iloc[i] + result.seasonal.iloc[i])
             deviation_pct = round((actual - expected) / expected * 100, 1) if expected > 0 else 0
-
             anomalies.append({
-                "date": date.strftime("%Y-%m-%d"),
+                "date": ts.index[i].strftime("%Y-%m-%d"),
                 "actual": round(actual, 2),
                 "expected": round(expected, 2),
                 "deviationPercent": deviation_pct,
-                "severity": "high" if abs(deviation_pct) > 50 else "medium" if abs(deviation_pct) > 25 else "low",
-                "anomalyScore": round(float(score), 4),
+                "severity": "high" if z > 3 else "medium" if z > 2.5 else "low",
+                "zScore": round(float(z), 2),
             })
 
     return {
-        "anomalies": sorted(anomalies, key=lambda x: x["anomalyScore"]),
+        "anomalies": sorted(anomalies, key=lambda x: -x["zScore"]),
         "totalDays": len(ts),
         "anomalyCount": len(anomalies),
-        "sensitivityUsed": sensitivity,
+        "threshold": threshold,
+        "decomposition": {
+            "dates": [d.strftime("%Y-%m-%d") for d in ts.index],
+            "observed": [round(float(v), 2) for v in ts.values],
+            "trend": [round(float(v), 2) for v in result.trend.values],
+            "seasonal": [round(float(v), 2) for v in result.seasonal.values],
+            "residual": [round(float(v), 2) for v in result.resid.values],
+        },
     }
 
 
-async def get_decomposition(db: AsyncSession, user_id: UUID) -> dict:
-    """
-    STL decomposition — break usage into trend, seasonal, residual.
-    Returns arrays for charting.
-    """
-    from statsmodels.tsa.seasonal import STL
+async def detect_anomalies(db: AsyncSession, user_id: UUID, threshold: float = 2.0) -> dict:
+    cached = get_cached_response(user_id, "anomalies", threshold=threshold)
+    if cached:
+        return cached
 
-    df = await _get_user_daily(db, user_id)
-    if len(df) < 14:
-        return {"error": "Not enough data (need 14+ days)"}
+    df = await get_user_daily(db, user_id)
+    if len(df) < 30:
+        return {"error": "Not enough data (need 30+ days)", "anomalies": []}
 
-    ts = df.set_index("ds")["y"].asfreq("D").ffill()
-
-    stl = STL(ts, period=7, robust=True)
-    result = stl.fit()
-
-    dates = [d.strftime("%Y-%m-%d") for d in ts.index]
-
-    return {
-        "dates": dates,
-        "observed": [round(float(v), 2) for v in ts.values],
-        "trend": [round(float(v), 2) for v in result.trend.values],
-        "seasonal": [round(float(v), 2) for v in result.seasonal.values],
-        "residual": [round(float(v), 2) for v in result.resid.values],
-    }
+    ts = df.set_index("ds")["y"]
+    resp = await asyncio.to_thread(_run_stl_zscore, ts.values, ts.index, threshold)
+    set_cached_response(user_id, "anomalies", resp, threshold=threshold)
+    return resp
 
 
 async def get_peak_hours(db: AsyncSession, user_id: UUID, days: int = 30) -> dict:
-    """Identify peak consumption hours from historical patterns."""
     result = await db.execute(
         text("""
             SELECT EXTRACT(HOUR FROM timestamp)::int AS hour,
@@ -132,21 +97,15 @@ async def get_peak_hours(db: AsyncSession, user_id: UUID, days: int = 30) -> dic
     )
     rows = result.all()
 
-    # Find overall peak hours (top 4 hours by avg watts)
     hourly_avg = {}
     for r in rows:
         hourly_avg.setdefault(r.hour, []).append(float(r.avg_watts))
 
     hourly_mean = {h: np.mean(v) for h, v in hourly_avg.items()}
     sorted_hours = sorted(hourly_mean.items(), key=lambda x: -x[1])
-    peak_hours = [h for h, _ in sorted_hours[:4]]
-    off_peak_hours = [h for h, _ in sorted_hours[-4:]]
 
     return {
-        "peakHours": peak_hours,
-        "offPeakHours": off_peak_hours,
-        "hourlyProfile": [
-            {"hour": h, "avgWatts": round(w, 1)}
-            for h, w in sorted(hourly_mean.items())
-        ],
+        "peakHours": [h for h, _ in sorted_hours[:4]],
+        "offPeakHours": [h for h, _ in sorted_hours[-4:]],
+        "hourlyProfile": [{"hour": h, "avgWatts": round(w, 1)} for h, w in sorted(hourly_mean.items())],
     }

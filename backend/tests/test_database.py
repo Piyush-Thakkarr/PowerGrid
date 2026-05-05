@@ -10,14 +10,11 @@ EXPECTED_TABLES = [
     "consumption_data",
     "discoms",
     "tariffs",
-    "bills",
     "achievements",
     "user_achievements",
     "challenges",
     "user_challenges",
     "leaderboard",
-    "forecast_results",
-    "detected_anomalies",
 ]
 
 
@@ -37,7 +34,7 @@ async def test_all_tables_exist(db_session):
 
 @pytest.mark.asyncio
 async def test_table_count_matches():
-    """We expect exactly 13 tables."""
+    """We expect exactly 10 tables."""
     table_names = Base.metadata.tables.keys()
     assert len(table_names) == len(EXPECTED_TABLES), (
         f"Expected {len(EXPECTED_TABLES)} tables, got {len(table_names)}: {list(table_names)}"
@@ -102,18 +99,3 @@ async def test_discom_table_has_duty_and_surcharge(db_session):
     expected = ["electricity_duty_pct", "fuel_surcharge_per_unit", "has_tou"]
     for col in expected:
         assert col in columns, f"Column '{col}' missing from discoms. Got: {columns}"
-
-
-@pytest.mark.asyncio
-async def test_bill_table_has_component_columns(db_session):
-    """Bill table should break down costs into components."""
-    from tests.conftest import test_engine
-
-    async with test_engine.connect() as conn:
-        columns = await conn.run_sync(
-            lambda sync_conn: [c["name"] for c in inspect(sync_conn).get_columns("bills")]
-        )
-
-    expected = ["energy_charge", "fixed_charge", "electricity_duty", "fuel_surcharge", "total_cost"]
-    for col in expected:
-        assert col in columns, f"Column '{col}' missing from bills. Got: {columns}"

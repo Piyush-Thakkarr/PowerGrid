@@ -80,7 +80,9 @@ class ChallengeAdmin(ModelView, model=Challenge):
 
 
 def setup_admin(app, engine):
-    auth_backend = AdminAuth(secret_key="powergrid-admin-secret-key")
+    from app.config import get_settings
+    _settings = get_settings()
+    auth_backend = AdminAuth(secret_key=_settings.session_secret or _settings.supabase_jwt_secret)
     admin = Admin(app, engine, authentication_backend=auth_backend)
     admin.add_view(UserAdmin)
     admin.add_view(UserProfileAdmin)

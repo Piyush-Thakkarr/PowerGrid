@@ -1,5 +1,6 @@
 """Bill calculation engine — state-wise slab tariffs."""
 
+from fastapi import HTTPException
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -33,7 +34,7 @@ async def calculate_bill(db: AsyncSession, user_id: UUID, month: int | None, yea
     )
     profile = profile.scalar_one_or_none()
     if not profile:
-        return {"error": "Profile not found"}
+        raise HTTPException(status_code=404, detail="Profile not found")
 
     # Find DISCOM for user's state
     discom_result = await db.execute(
@@ -41,7 +42,7 @@ async def calculate_bill(db: AsyncSession, user_id: UUID, month: int | None, yea
     )
     discom = discom_result.scalar_one_or_none()
     if not discom:
-        return {"error": f"No DISCOM found for state: {profile.state}"}
+        raise HTTPException(status_code=404, detail=f"No DISCOM found for state: {profile.state}")
 
     # Get tariff slabs for this DISCOM
     tariff_result = await db.execute(
@@ -51,7 +52,7 @@ async def calculate_bill(db: AsyncSession, user_id: UUID, month: int | None, yea
     )
     slabs = tariff_result.scalars().all()
     if not slabs:
-        return {"error": f"No tariff slabs for {discom.name} / {profile.tariff_plan}"}
+        raise HTTPException(status_code=404, detail=f"No tariff slabs for {discom.name} / {profile.tariff_plan}")
 
     # Get total consumption for the month
     consumption_result = await db.execute(

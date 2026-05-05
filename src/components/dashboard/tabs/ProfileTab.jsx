@@ -17,7 +17,7 @@ export default function ProfileTab({ user, gamification }) {
         setSaving(true); setError('');
         try {
             await updateProfile({ name: form.name, household_size: parseInt(form.householdSize), state: form.state, tariff_plan: form.tariffPlan });
-            try { await apiFetch('/api/profile', { method: 'PUT', body: JSON.stringify({ name: form.name, householdSize: parseInt(form.householdSize), state: form.state, tariffPlan: form.tariffPlan }) }); } catch {}
+            try { await apiFetch('/api/auth/profile', { method: 'PUT', body: JSON.stringify({ name: form.name, householdSize: parseInt(form.householdSize), state: form.state, tariffPlan: form.tariffPlan }) }); } catch {}
             setEditing(false); setSaved(true); setTimeout(() => setSaved(false), 2000);
         } catch (e) { setError(e.message); } finally { setSaving(false); }
     };

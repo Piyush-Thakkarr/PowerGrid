@@ -14,13 +14,13 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255), nullable=False, default="")
     phone = Column(String(20), nullable=True)
+    role = Column(String(20), nullable=False, default="consumer")
     provider = Column(String(50), default="email")  # email, google, phone
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     consumption_data = relationship("ConsumptionData", back_populates="user", cascade="all, delete-orphan")
-    bills = relationship("Bill", back_populates="user", cascade="all, delete-orphan")
 
 
 class UserProfile(Base):

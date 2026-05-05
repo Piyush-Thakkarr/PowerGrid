@@ -82,7 +82,7 @@ async def test_get_profile_returns_user(client):
     token = make_token(user_id=user_id)
     await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
 
-    response = await client.get("/api/profile", headers={"Authorization": f"Bearer {token}"})
+    response = await client.get("/api/auth/profile", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     assert response.json()["id"] == user_id
 
@@ -94,7 +94,7 @@ async def test_update_profile_changes_fields(client):
     await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
 
     response = await client.put(
-        "/api/profile",
+        "/api/auth/profile",
         headers={"Authorization": f"Bearer {token}"},
         json={"name": "Updated Name", "householdSize": 6, "state": "Maharashtra", "tariffPlan": "Commercial"},
     )
@@ -112,7 +112,7 @@ async def test_update_profile_invalid_state_rejected(client):
     await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
 
     response = await client.put(
-        "/api/profile",
+        "/api/auth/profile",
         headers={"Authorization": f"Bearer {token}"},
         json={"state": "Narnia"},
     )
@@ -126,12 +126,12 @@ async def test_update_persists_across_requests(client):
     await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
 
     await client.put(
-        "/api/profile",
+        "/api/auth/profile",
         headers={"Authorization": f"Bearer {token}"},
         json={"name": "Persistent Name", "householdSize": 3},
     )
 
-    response = await client.get("/api/profile", headers={"Authorization": f"Bearer {token}"})
+    response = await client.get("/api/auth/profile", headers={"Authorization": f"Bearer {token}"})
     data = response.json()
     assert data["name"] == "Persistent Name"
     assert data["householdSize"] == 3
@@ -139,5 +139,5 @@ async def test_update_persists_across_requests(client):
 
 @pytest.mark.anyio
 async def test_profile_without_auth_returns_error(client):
-    response = await client.get("/api/profile")
+    response = await client.get("/api/auth/profile")
     assert response.status_code in (401, 403)

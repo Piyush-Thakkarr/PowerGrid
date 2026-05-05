@@ -1,5 +1,6 @@
 """Comparison & benchmarking — user vs state/national averages."""
 
+from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -86,7 +87,7 @@ async def get_comparison(db: AsyncSession, user_id: UUID) -> dict:
     )
     row = result.one_or_none()
     if not row or row.user_kwh == 0:
-        return {"error": "No data available"}
+        raise HTTPException(status_code=404, detail="No data available")
 
     percentile = max(1, round(row.user_rank / row.total_users * 100))
 

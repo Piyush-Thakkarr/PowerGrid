@@ -1,3 +1,5 @@
+"""Request/response schemas."""
+
 from pydantic import BaseModel, field_validator
 from typing import Optional
 
@@ -11,6 +13,21 @@ VALID_STATES = [
 ]
 
 VALID_TARIFF_PLANS = ["Residential", "Commercial", "Industrial"]
+
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    phone: Optional[str] = None
+    name: str
+    householdSize: int
+    state: str
+    tariffPlan: str
+    xp: int
+    level: int
+    createdAt: str
+    avatarUrl: Optional[str] = None
+    provider: Optional[str] = None
 
 
 class ProfileUpdateRequest(BaseModel):
