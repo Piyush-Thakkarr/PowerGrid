@@ -8,9 +8,6 @@ boundaries better for skewed consumption distributions.
 import logging
 from uuid import UUID
 
-import numpy as np
-from sklearn.mixture import GaussianMixture
-from sklearn.preprocessing import StandardScaler
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,6 +30,10 @@ async def segment_users(db: AsyncSession, n_clusters: int = 3) -> dict:
     rows = result.all()
     if not rows:
         return {"error": "No consumption data available"}
+
+    import numpy as np
+    from sklearn.mixture import GaussianMixture
+    from sklearn.preprocessing import StandardScaler
 
     user_profiles = {}
     for r in rows:

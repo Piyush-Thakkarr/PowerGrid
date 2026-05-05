@@ -9,9 +9,6 @@ import logging
 from datetime import timedelta
 from uuid import UUID
 
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import ExtraTreesRegressor
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.helpers import get_user_daily
@@ -29,7 +26,8 @@ FEATURE_COLS = [
 ]
 
 
-def _make_features(history: np.ndarray, target_date) -> dict:
+def _make_features(history, target_date) -> dict:
+    import numpy as np
     return {
         "dow": target_date.dayofweek,
         "month": target_date.month,
@@ -49,6 +47,10 @@ def _make_features(history: np.ndarray, target_date) -> dict:
 
 def _train_and_predict(values, dates, horizon, user_id):
     """Sync CPU-heavy work — runs in thread pool."""
+    import numpy as np
+    import pandas as pd
+    from sklearn.ensemble import ExtraTreesRegressor
+
     model = get_cached_model(user_id, "forecast_et")
     if model is None:
         rows = []

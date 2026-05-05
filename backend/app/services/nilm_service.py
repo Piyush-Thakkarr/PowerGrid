@@ -10,8 +10,6 @@ import asyncio
 import logging
 from uuid import UUID
 
-import numpy as np
-from sklearn.decomposition import NMF
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,7 +53,9 @@ async def disaggregate(db: AsyncSession, user_id: UUID, days: int = 30) -> dict:
         return {"error": "Not enough data (need 100+ readings)"}
 
     def _compute(rows_data):
+        import numpy as np
         import pandas as pd
+        from sklearn.decomposition import NMF
         df = pd.DataFrame(rows_data, columns=["timestamp", "kwh", "watts"])
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         df["hour"] = df["timestamp"].dt.hour

@@ -10,8 +10,6 @@ import asyncio
 import logging
 from uuid import UUID
 
-import numpy as np
-from sklearn.ensemble import GradientBoostingClassifier
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,6 +58,9 @@ async def predict_peak_hours(db: AsyncSession, user_id: UUID, next_hours: int = 
     feat_cols = ["hour", "dow", "month", "is_weekend", "watts_lag1", "watts_lag24"]
 
     def _train_and_predict():
+        import numpy as np
+        from sklearn.ensemble import GradientBoostingClassifier
+
         split = int(len(df) * 0.8)
         X_train = df[feat_cols].iloc[:split].values
         y_train = df["is_peak"].iloc[:split].values

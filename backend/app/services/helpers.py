@@ -1,7 +1,6 @@
 """Shared helpers used across multiple services."""
 
 from uuid import UUID
-import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +14,7 @@ async def get_latest_date(db: AsyncSession, user_id: UUID):
     return result.scalar()
 
 
-async def get_user_daily(db: AsyncSession, user_id: UUID, days: int = 180) -> pd.DataFrame:
+async def get_user_daily(db: AsyncSession, user_id: UUID, days: int = 180):
     """Fetch user's daily consumption as a DataFrame (ds=date, y=daily_kwh)."""
     result = await db.execute(
         text("""
@@ -29,6 +28,7 @@ async def get_user_daily(db: AsyncSession, user_id: UUID, days: int = 180) -> pd
         """),
         {"uid": str(user_id), "days": days},
     )
+    import pandas as pd
     rows = result.all()
     if not rows:
         return pd.DataFrame(columns=["ds", "y"])

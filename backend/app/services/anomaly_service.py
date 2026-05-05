@@ -8,7 +8,6 @@ import asyncio
 import logging
 from uuid import UUID
 
-import numpy as np
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 def _run_stl_zscore(ts_values, ts_index, threshold):
     """Sync CPU work — runs in thread pool."""
+    import numpy as np
     import pandas as pd
     from statsmodels.tsa.seasonal import STL
 
@@ -97,11 +97,13 @@ async def get_peak_hours(db: AsyncSession, user_id: UUID, days: int = 30) -> dic
     )
     rows = result.all()
 
+    import numpy as np
+
     hourly_avg = {}
     for r in rows:
         hourly_avg.setdefault(r.hour, []).append(float(r.avg_watts))
 
-    hourly_mean = {h: np.mean(v) for h, v in hourly_avg.items()}
+    hourly_mean = {h: float(np.mean(v)) for h, v in hourly_avg.items()}
     sorted_hours = sorted(hourly_mean.items(), key=lambda x: -x[1])
 
     return {
