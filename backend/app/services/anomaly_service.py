@@ -8,9 +8,7 @@ import asyncio
 import logging
 from uuid import UUID
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.database import fetch
 from app.services.helpers import get_user_daily
 from app.services.ml_cache import get_cached_response, set_cached_response
 
@@ -65,12 +63,12 @@ def _run_stl_zscore(ts_values, ts_index, threshold):
     }
 
 
-async def detect_anomalies(db: AsyncSession, user_id: UUID, threshold: float = 2.0) -> dict:
+async def detect_anomalies(user_id: UUID, threshold: float = 2.0) -> dict:
     cached = get_cached_response(user_id, "anomalies", threshold=threshold)
     if cached:
         return cached
 
-    df = await get_user_daily(db, user_id)
+    df = await get_user_daily(user_id)
     if len(df) < 30:
         return {"error": "Not enough data (need 30+ days)", "anomalies": []}
 
@@ -80,28 +78,27 @@ async def detect_anomalies(db: AsyncSession, user_id: UUID, threshold: float = 2
     return resp
 
 
-async def get_peak_hours(db: AsyncSession, user_id: UUID, days: int = 30) -> dict:
-    result = await db.execute(
-        text("""
+async def get_peak_hours(user_id: UUID, days: int = 30) -> dict:
+    rows = await fetch(
+        """
             SELECT EXTRACT(HOUR FROM timestamp)::int AS hour,
                    EXTRACT(DOW FROM timestamp)::int AS dow,
                    AVG(power_watts) AS avg_watts,
                    MAX(power_watts) AS peak_watts
             FROM consumption_data
-            WHERE user_id = :uid
-              AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => :days) FROM consumption_data WHERE user_id = :uid)
+            WHERE user_id = $1
+              AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => $2) FROM consumption_data WHERE user_id = $1)
             GROUP BY hour, dow
             ORDER BY dow, hour
-        """),
-        {"uid": str(user_id), "days": days},
+        """,
+        user_id, days,
     )
-    rows = result.all()
 
     import numpy as np
 
     hourly_avg = {}
     for r in rows:
-        hourly_avg.setdefault(r.hour, []).append(float(r.avg_watts))
+        hourly_avg.setdefault(r["hour"], []).append(float(r["avg_watts"]))
 
     hourly_mean = {h: float(np.mean(v)) for h, v in hourly_avg.items()}
     sorted_hours = sorted(hourly_mean.items(), key=lambda x: -x[1])

@@ -10,8 +10,7 @@ import asyncio
 import logging
 from uuid import UUID
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import fetch
 
 logger = logging.getLogger(__name__)
 
@@ -35,20 +34,19 @@ INDIAN_APPLIANCES = {
 }
 
 
-async def disaggregate(db: AsyncSession, user_id: UUID, days: int = 30) -> dict:
+async def disaggregate(user_id: UUID, days: int = 30) -> dict:
     """Estimate per-appliance consumption breakdown."""
-    result = await db.execute(
-        text("""
+    rows = await fetch(
+        """
             SELECT timestamp, energy_kwh, power_watts
             FROM consumption_data
-            WHERE user_id = :uid
-              AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => :days)
-                                FROM consumption_data WHERE user_id = :uid)
+            WHERE user_id = $1
+              AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => $2)
+                                FROM consumption_data WHERE user_id = $1)
             ORDER BY timestamp
-        """),
-        {"uid": str(user_id), "days": days},
+        """,
+        user_id, days,
     )
-    rows = result.all()
     if len(rows) < 100:
         return {"error": "Not enough data (need 100+ readings)"}
 
@@ -109,4 +107,7 @@ async def disaggregate(db: AsyncSession, user_id: UUID, days: int = 30) -> dict:
         return {"totalKwh": round(total_kwh, 2), "days": days, "breakdown": breakdown,
                 "nmfComponents": components, "dataPoints": len(df)}
 
-    return await asyncio.to_thread(_compute, [(r.timestamp, r.energy_kwh, r.power_watts) for r in rows])
+    return await asyncio.to_thread(
+        _compute,
+        [(r["timestamp"], r["energy_kwh"], r["power_watts"]) for r in rows],
+    )

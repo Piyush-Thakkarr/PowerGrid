@@ -1,6 +1,6 @@
 """Tariff optimization — brute force plan comparison.
 
-Benchmarked: Brute force is optimal for N≤5 tariff plans per DISCOM.
+Benchmarked: Brute force is optimal for N<=5 tariff plans per DISCOM.
 LP optimization and ML prediction add complexity for zero gain.
 Compares user's actual consumption pattern against all available
 tariff plans and recommends the cheapest one.
@@ -10,44 +10,41 @@ import logging
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy import select, text
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.tariff import Tariff, Discom
-from app.models.user import UserProfile
+from app.database import fetch, fetchrow
 
 logger = logging.getLogger(__name__)
 
 
-async def optimize_tariff(db: AsyncSession, user_id: UUID) -> dict:
+async def optimize_tariff(user_id: UUID) -> dict:
     """Compare all tariff plans for user's DISCOM, recommend cheapest."""
-    profile_result = await db.execute(
-        select(UserProfile).where(UserProfile.user_id == user_id)
+    profile = await fetchrow(
+        "SELECT * FROM user_profiles WHERE user_id = $1",
+        user_id,
     )
-    profile = profile_result.scalar_one_or_none()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
 
-    discom_result = await db.execute(
-        select(Discom).where(Discom.state == profile.state).limit(1)
+    discom = await fetchrow(
+        "SELECT * FROM discoms WHERE state = $1 LIMIT 1",
+        profile["state"],
     )
-    discom = discom_result.scalar_one_or_none()
     if not discom:
-        raise HTTPException(status_code=404, detail=f"No DISCOM found for state: {profile.state}")
+        raise HTTPException(status_code=404, detail=f"No DISCOM found for state: {profile['state']}")
 
-    consumption = await db.execute(
-        text("""
+    consumption_rows = await fetch(
+        """
             SELECT EXTRACT(HOUR FROM timestamp)::int AS hour,
                    SUM(energy_kwh) AS kwh
             FROM consumption_data
-            WHERE user_id = :uid
+            WHERE user_id = $1
               AND timestamp >= (SELECT MAX(timestamp) - interval '30 days'
-                                FROM consumption_data WHERE user_id = :uid)
+                                FROM consumption_data WHERE user_id = $1)
             GROUP BY hour
-        """),
-        {"uid": str(user_id)},
+        """,
+        user_id,
     )
-    hourly = {r.hour: float(r.kwh) for r in consumption.all()}
+    hourly = {r["hour"]: float(r["kwh"]) for r in consumption_rows}
     monthly_kwh = sum(hourly.values())
 
     if monthly_kwh == 0:
@@ -61,12 +58,14 @@ async def optimize_tariff(db: AsyncSession, user_id: UUID) -> dict:
     plan_bills = []
 
     for category in categories:
-        tariff_result = await db.execute(
-            select(Tariff)
-            .where(Tariff.discom_id == discom.id, Tariff.category == category)
-            .order_by(Tariff.slab_start)
+        slabs = await fetch(
+            """
+                SELECT * FROM tariffs
+                WHERE discom_id = $1 AND category = $2
+                ORDER BY slab_start
+            """,
+            discom["id"], category,
         )
-        slabs = tariff_result.scalars().all()
         if not slabs:
             continue
 
@@ -76,23 +75,23 @@ async def optimize_tariff(db: AsyncSession, user_id: UUID) -> dict:
         for slab in slabs:
             if remaining <= 0:
                 break
-            slab_end = slab.slab_end if slab.slab_end else float("inf")
-            slab_width = slab_end - slab.slab_start
+            slab_end = slab["slab_end"] if slab["slab_end"] else float("inf")
+            slab_width = slab_end - slab["slab_start"]
             units = min(remaining, slab_width)
-            cost = units * slab.rate_per_unit
+            cost = units * slab["rate_per_unit"]
             energy_charge += cost
             remaining -= units
             breakdown.append({
-                "slabStart": slab.slab_start,
-                "slabEnd": slab.slab_end,
+                "slabStart": slab["slab_start"],
+                "slabEnd": slab["slab_end"],
                 "units": round(units, 2),
-                "rate": slab.rate_per_unit,
+                "rate": slab["rate_per_unit"],
                 "cost": round(cost, 2),
             })
 
-        fixed = slabs[0].fixed_charge if slabs else 0
-        duty = round(energy_charge * discom.electricity_duty_pct, 2)
-        fuel = round(monthly_kwh * discom.fuel_surcharge_per_unit, 2)
+        fixed = slabs[0]["fixed_charge"] if slabs else 0
+        duty = round(energy_charge * discom["electricity_duty_pct"], 2)
+        fuel = round(monthly_kwh * discom["fuel_surcharge_per_unit"], 2)
         total = round(energy_charge + fixed + duty + fuel, 2)
 
         plan_bills.append({
@@ -110,15 +109,15 @@ async def optimize_tariff(db: AsyncSession, user_id: UUID) -> dict:
 
     plan_bills.sort(key=lambda x: x["totalBill"])
     cheapest = plan_bills[0]
-    current = next((p for p in plan_bills if p["plan"] == profile.tariff_plan), plan_bills[-1])
+    current = next((p for p in plan_bills if p["plan"] == profile["tariff_plan"]), plan_bills[-1])
     savings = round(current["totalBill"] - cheapest["totalBill"], 2)
 
     return {
         "monthlyKwh": round(monthly_kwh, 2),
         "peakUsagePercent": round(peak_pct * 100, 1),
-        "currentPlan": profile.tariff_plan,
-        "discom": discom.name,
-        "state": profile.state,
+        "currentPlan": profile["tariff_plan"],
+        "discom": discom["name"],
+        "state": profile["state"],
         "recommendedPlan": cheapest["plan"],
         "monthlySavings": savings,
         "allPlans": plan_bills,

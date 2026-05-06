@@ -8,16 +8,15 @@ boundaries better for skewed consumption distributions.
 import logging
 from uuid import UUID
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import fetch
 
 logger = logging.getLogger(__name__)
 
 
-async def segment_users(db: AsyncSession, n_clusters: int = 3) -> dict:
+async def segment_users(n_clusters: int = 3) -> dict:
     """Cluster all users by their daily consumption profile (24-hour shape)."""
-    result = await db.execute(
-        text("""
+    rows = await fetch(
+        """
             SELECT user_id,
                    EXTRACT(HOUR FROM timestamp)::int AS hour,
                    AVG(energy_kwh) AS avg_kwh
@@ -25,9 +24,8 @@ async def segment_users(db: AsyncSession, n_clusters: int = 3) -> dict:
             WHERE timestamp >= (SELECT MAX(timestamp) - interval '90 days' FROM consumption_data)
             GROUP BY user_id, hour
             ORDER BY user_id, hour
-        """),
+        """,
     )
-    rows = result.all()
     if not rows:
         return {"error": "No consumption data available"}
 
@@ -37,10 +35,10 @@ async def segment_users(db: AsyncSession, n_clusters: int = 3) -> dict:
 
     user_profiles = {}
     for r in rows:
-        uid = str(r.user_id)
+        uid = str(r["user_id"])
         if uid not in user_profiles:
             user_profiles[uid] = np.zeros(24)
-        user_profiles[uid][r.hour] = float(r.avg_kwh)
+        user_profiles[uid][r["hour"]] = float(r["avg_kwh"])
 
     if len(user_profiles) < n_clusters:
         return {"error": f"Need at least {n_clusters} users, found {len(user_profiles)}"}
@@ -78,9 +76,9 @@ async def segment_users(db: AsyncSession, n_clusters: int = 3) -> dict:
     }
 
 
-async def get_user_segment(db: AsyncSession, user_id: UUID) -> dict:
+async def get_user_segment(user_id: UUID) -> dict:
     """Get which segment a specific user belongs to."""
-    all_segments = await segment_users(db)
+    all_segments = await segment_users()
     if "error" in all_segments:
         return all_segments
 

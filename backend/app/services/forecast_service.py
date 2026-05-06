@@ -9,8 +9,6 @@ import logging
 from datetime import timedelta
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.services.helpers import get_user_daily
 from app.services.ml_cache import (
     get_cached_model, set_cached_model,
@@ -89,12 +87,12 @@ def _train_and_predict(values, dates, horizon, user_id):
     }
 
 
-async def forecast(db: AsyncSession, user_id: UUID, horizon: int = 7) -> dict:
+async def forecast(user_id: UUID, horizon: int = 7) -> dict:
     cached = get_cached_response(user_id, "forecast", horizon=horizon)
     if cached:
         return cached
 
-    df = await get_user_daily(db, user_id)
+    df = await get_user_daily(user_id)
     if len(df) < 40:
         return {"error": "Not enough data (need 40+ days)", "model": "extra_trees"}
 

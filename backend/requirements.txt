@@ -3,11 +3,8 @@ fastapi==0.115.0
 uvicorn[standard]==0.30.0
 python-multipart==0.0.12
 
-# Database
-sqlalchemy[asyncio]==2.0.35
+# Database (raw asyncpg — no ORM)
 asyncpg==0.30.0
-psycopg2-binary==2.9.9
-alembic==1.14.0
 
 # Auth
 pyjwt[crypto]==2.9.0
@@ -21,24 +18,17 @@ pandas==2.2.3
 numpy==1.26.4
 scipy==1.14.1
 
-# ML (sklearn only — no TensorFlow/PyTorch needed)
+# ML
 scikit-learn==1.5.2
 statsmodels==0.14.4
 
 # Rate limiting
 slowapi==0.1.9
 
-# Logging
-python-json-logger==2.0.7
-
-# Admin
-sqladmin==0.19.0
-
 # Testing
 pytest==8.3.3
 pytest-asyncio==0.24.0
 httpx==0.27.2
-aiosqlite==0.20.0
 
 # Utilities
 python-dotenv==1.0.1

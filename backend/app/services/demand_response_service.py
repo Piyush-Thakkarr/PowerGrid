@@ -10,9 +10,7 @@ import asyncio
 import logging
 from uuid import UUID
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.database import fetch
 from app.services.ml_cache import (
     get_cached_model, set_cached_model,
     get_cached_response, set_cached_response,
@@ -21,29 +19,31 @@ from app.services.ml_cache import (
 logger = logging.getLogger(__name__)
 
 
-async def predict_peak_hours(db: AsyncSession, user_id: UUID, next_hours: int = 24) -> dict:
+async def predict_peak_hours(user_id: UUID, next_hours: int = 24) -> dict:
     """Predict which of the next N hours will be peak consumption."""
     cached = get_cached_response(user_id, "demand_response", hours=next_hours)
     if cached:
         return cached
 
-    result = await db.execute(
-        text("""
+    rows = await fetch(
+        """
             SELECT timestamp, energy_kwh, power_watts
             FROM consumption_data
-            WHERE user_id = :uid
+            WHERE user_id = $1
               AND timestamp >= (SELECT MAX(timestamp) - interval '90 days'
-                                FROM consumption_data WHERE user_id = :uid)
+                                FROM consumption_data WHERE user_id = $1)
             ORDER BY timestamp
-        """),
-        {"uid": str(user_id)},
+        """,
+        user_id,
     )
-    rows = result.all()
     if len(rows) < 500:
         return {"error": "Not enough data (need 500+ readings)"}
 
     import pandas as pd
-    df = pd.DataFrame(rows, columns=["timestamp", "kwh", "watts"])
+    df = pd.DataFrame(
+        [(r["timestamp"], r["energy_kwh"], r["power_watts"]) for r in rows],
+        columns=["timestamp", "kwh", "watts"],
+    )
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     df["hour"] = df["timestamp"].dt.hour
     df["dow"] = df["timestamp"].dt.dayofweek
@@ -110,29 +110,28 @@ async def predict_peak_hours(db: AsyncSession, user_id: UUID, next_hours: int = 
     return resp
 
 
-async def get_aggregate_demand(db: AsyncSession, days: int = 7) -> dict:
+async def get_aggregate_demand(days: int = 7) -> dict:
     """Aggregate demand curve across all users (for grid operators)."""
-    result = await db.execute(
-        text("""
+    rows = await fetch(
+        """
             SELECT date_trunc('hour', timestamp) AS hour,
                    SUM(power_watts) AS total_watts,
                    COUNT(DISTINCT user_id) AS active_users,
                    AVG(power_watts) AS avg_per_user
             FROM consumption_data
-            WHERE timestamp >= (SELECT MAX(timestamp) - make_interval(days => :days) FROM consumption_data)
+            WHERE timestamp >= (SELECT MAX(timestamp) - make_interval(days => $1) FROM consumption_data)
             GROUP BY hour
             ORDER BY hour
-        """),
-        {"days": days},
+        """,
+        days,
     )
-    rows = result.all()
 
     demand_curve = [
         {
-            "hour": r.hour.isoformat(),
-            "totalWatts": round(float(r.total_watts), 1),
-            "activeUsers": r.active_users,
-            "avgPerUser": round(float(r.avg_per_user), 1),
+            "hour": r["hour"].isoformat(),
+            "totalWatts": round(float(r["total_watts"]), 1),
+            "activeUsers": r["active_users"],
+            "avgPerUser": round(float(r["avg_per_user"]), 1),
         }
         for r in rows
     ]
