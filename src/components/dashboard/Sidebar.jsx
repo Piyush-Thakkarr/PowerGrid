@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { DASHBOARD_TABS } from '../../lib/constants';
-import { LayoutDashboard, BarChart3, Receipt, Users, Trophy, BrainCircuit, User, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Receipt, Users, Trophy, BrainCircuit, User, Settings, LogOut, Plug, Sparkles, AlertTriangle, Wallet, TrendingUp, UserCircle2 } from 'lucide-react';
 
-const ICONS = { overview: LayoutDashboard, analytics: BarChart3, billing: Receipt, compare: Users, rewards: Trophy, ml: BrainCircuit, profile: User };
+const ICONS = {
+    overview: LayoutDashboard, analytics: BarChart3,
+    appliance: Plug, forecast: Sparkles, anomalies: AlertTriangle,
+    tariff: Wallet, demand: TrendingUp, segment: UserCircle2,
+    billing: Receipt, compare: Users, rewards: Trophy, ml: BrainCircuit, profile: User,
+};
 
 export default function Sidebar({ tab, onTabChange, user, onLogout }) {
     return (

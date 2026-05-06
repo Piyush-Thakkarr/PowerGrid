@@ -1,0 +1,338 @@
+/* ─── Shared dashboard tab UI (role dashboards + new consumer tabs) ── */
+
+.role-header {
+  margin-bottom: 1.8rem;
+}
+
+.role-header-tag {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: rgba(0, 170, 255, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.role-header-title {
+  font-family: Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.role-loading,
+.role-error {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  padding: 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 8, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+}
+
+.role-error { color: #ff8080; border-color: rgba(255, 128, 128, 0.3); }
+
+.role-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.role-stat {
+  background: rgba(0, 8, 22, 0.85);
+  padding: 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: background 0.3s;
+}
+
+.role-stat:hover { background: rgba(0, 170, 255, 0.05); }
+
+.role-stat-wide { grid-column: span 2; }
+
+.role-stat-l {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.role-stat-v {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #00aaff 0%, #82C8E5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.role-card {
+  background: linear-gradient(180deg, rgba(0, 8, 22, 0.92), rgba(0, 0, 10, 0.85));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.4rem 1.4rem 1.5rem;
+  transition: border-color 0.3s;
+}
+
+.role-card:hover { border-color: rgba(0, 170, 255, 0.25); }
+
+.role-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.role-card-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: rgba(0, 170, 255, 0.85);
+  text-transform: uppercase;
+}
+
+.role-card-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.role-chart {
+  width: 100%;
+}
+
+.role-toggle {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.role-toggle button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.25s, color 0.25s;
+}
+
+.role-toggle button.on {
+  background: rgba(0, 170, 255, 0.15);
+  color: #00aaff;
+}
+
+.role-table-wrap {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.role-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+}
+
+.role-table thead {
+  background: rgba(0, 170, 255, 0.06);
+}
+
+.role-table th {
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.role-table td {
+  padding: 0.65rem 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.role-table tbody tr:hover { background: rgba(0, 170, 255, 0.04); }
+
+.role-table tr.role-row-highlight {
+  background: rgba(0, 170, 255, 0.08);
+}
+
+.role-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 1px;
+}
+
+.role-pager button {
+  background: rgba(0, 170, 255, 0.08);
+  border: 1px solid rgba(0, 170, 255, 0.25);
+  color: #00aaff;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.25s;
+}
+
+.role-pager button:hover:not(:disabled) { background: rgba(0, 170, 255, 0.15); }
+.role-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.role-pill {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Hero card (recommended plan, my segment) */
+.role-card-hero {
+  text-align: center;
+  padding: 2.2rem 1.4rem;
+  background: linear-gradient(180deg, rgba(0, 30, 60, 0.7), rgba(0, 8, 22, 0.85));
+  border-color: rgba(0, 170, 255, 0.3);
+}
+
+.role-hero-l {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.role-hero-v {
+  font-family: Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00aaff 0%, #82C8E5 60%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.role-hero-sub {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 0.7rem;
+}
+
+.role-hero-sub strong {
+  color: #00ff88;
+  font-weight: 700;
+}
+
+/* Tip card (recommendation message) */
+.role-card-tip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  background: rgba(0, 170, 255, 0.06);
+  border-color: rgba(0, 170, 255, 0.25);
+}
+
+.role-card-tip-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.role-card-tip-text {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.5;
+}
+
+/* Demand-response strip */
+.dr-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 4px;
+}
+
+.dr-cell {
+  border-radius: 4px;
+  padding: 0.55rem 0.4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: transform 0.2s;
+}
+
+.dr-cell:hover { transform: translateY(-2px); }
+
+.dr-cell-peak { border-color: rgba(255, 77, 79, 0.5); }
+
+.dr-cell-h {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dr-cell-p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 700px) {
+  .role-grid { grid-template-columns: 1fr 1fr; }
+  .role-stat-wide { grid-column: span 2; }
+  .role-hero-v { font-size: 1.8rem; }
+}

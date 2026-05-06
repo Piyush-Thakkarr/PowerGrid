@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
+import RoleDashboard from './components/dashboard/RoleDashboard';
 import DashboardPreview from './pages/DashboardPreview';
 import './styles/index.css';
 
@@ -68,7 +68,7 @@ function App() {
             } />
             <Route path="/dashboard" element={
                 <ProtectedRoute>
-                    <Dashboard />
+                    <RoleDashboard />
                 </ProtectedRoute>
             } />
             <Route path="/preview" element={<DashboardPreview />} />

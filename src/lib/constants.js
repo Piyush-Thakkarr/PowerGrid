@@ -15,9 +15,15 @@ export const HOUSEHOLD_SIZES = [1, 2, 3, 4, 5, 6, 7, 8];
 export const DASHBOARD_TABS = [
     { id: 'overview', label: 'Overview', icon: '⚡' },
     { id: 'analytics', label: 'Analytics', icon: '📊' },
+    { id: 'appliance', label: 'Appliances', icon: '🔌' },
+    { id: 'forecast', label: 'Forecast', icon: '🔮' },
+    { id: 'anomalies', label: 'Anomalies', icon: '⚠️' },
+    { id: 'tariff', label: 'Tariff', icon: '💵' },
+    { id: 'demand', label: 'Demand', icon: '📈' },
+    { id: 'segment', label: 'My Segment', icon: '👥' },
     { id: 'billing', label: 'Billing', icon: '💰' },
     { id: 'compare', label: 'Compare', icon: '🔍' },
     { id: 'rewards', label: 'Rewards', icon: '🏆' },
-    { id: 'ml', label: 'AI Insights', icon: '🧠' },
+    { id: 'ml', label: 'Tips', icon: '💡' },
     { id: 'profile', label: 'Profile', icon: '👤' },
 ];
