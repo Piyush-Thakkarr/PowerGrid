@@ -3,11 +3,12 @@ import { useTariffOptimizer } from '../../../hooks/useMLEndpoints';
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN'));
 
-export default function TariffTab() {
-    const { data, loading, error } = useTariffOptimizer();
+export default function TariffTab({ mock }) {
+    const { data: fetched, loading, error } = useTariffOptimizer({ skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Calculating optimal tariff…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Calculating optimal tariff…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const plans = data?.allPlans || [];
     const savings = data?.monthlySavings || 0;

@@ -24,10 +24,11 @@ const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN'));
 function Loading() { return <div className="role-loading">Loading…</div>; }
 function ErrorBox({ msg }) { return <div className="role-error">⚠ {msg}</div>; }
 
-function OverviewTab() {
-    const { data, loading, error } = useDiscomOverview();
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function OverviewTab({ mock }) {
+    const { data: fetched, loading, error } = useDiscomOverview({ skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const k = data || {};
     return (
         <div className="role-grid">
@@ -40,10 +41,11 @@ function OverviewTab() {
     );
 }
 
-function SegmentationTab() {
-    const { data, loading, error } = useDiscomSegmentation(3);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function SegmentationTab({ mock }) {
+    const { data: fetched, loading, error } = useDiscomSegmentation(3, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const clusters = data?.clusters || [];
     return (
         <div className="role-stack">
@@ -70,10 +72,11 @@ function SegmentationTab() {
     );
 }
 
-function DemandTab() {
-    const { data, loading, error } = useDiscomDemand(7);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function DemandTab({ mock }) {
+    const { data: fetched, loading, error } = useDiscomDemand(7, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const curve = data?.demandCurve || [];
     return (
         <>
@@ -99,11 +102,12 @@ function DemandTab() {
     );
 }
 
-function ConsumersTab() {
+function ConsumersTab({ mock }) {
     const [page, setPage] = useState(1);
-    const { data, loading, error } = useDiscomConsumers(page, 25);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+    const { data: fetched, loading, error } = useDiscomConsumers(page, 25, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const rows = data?.consumers || [];
     return (
         <div className="role-card">
@@ -135,10 +139,11 @@ function ConsumersTab() {
     );
 }
 
-function RevenueTab() {
-    const { data, loading, error } = useDiscomRevenue();
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function RevenueTab({ mock }) {
+    const { data: fetched, loading, error } = useDiscomRevenue({ skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const byPlan = data?.byPlan || [];
     return (
         <div className="role-card">
@@ -158,8 +163,9 @@ function RevenueTab() {
     );
 }
 
-export default function DiscomDashboard() {
-    const { user } = useAuth();
+export default function DiscomDashboard({ mocks, user: userProp }) {
+    const { user: authUser } = useAuth();
+    const user = userProp || authUser;
     const [tab, setTab] = useState('overview');
 
     return (
@@ -170,11 +176,11 @@ export default function DiscomDashboard() {
                     <span className="role-header-tag">DISCOM Dashboard</span>
                     <h1 className="role-header-title">{TABS.find(t => t.id === tab)?.label}</h1>
                 </header>
-                {tab === 'overview' && <OverviewTab />}
-                {tab === 'segmentation' && <SegmentationTab />}
-                {tab === 'demand' && <DemandTab />}
-                {tab === 'consumers' && <ConsumersTab />}
-                {tab === 'revenue' && <RevenueTab />}
+                {tab === 'overview' && <OverviewTab mock={mocks?.overview} />}
+                {tab === 'segmentation' && <SegmentationTab mock={mocks?.segmentation} />}
+                {tab === 'demand' && <DemandTab mock={mocks?.demand} />}
+                {tab === 'consumers' && <ConsumersTab mock={mocks?.consumers} />}
+                {tab === 'revenue' && <RevenueTab mock={mocks?.revenue} />}
             </main>
         </div>
     );

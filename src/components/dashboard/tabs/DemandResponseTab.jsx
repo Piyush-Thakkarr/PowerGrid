@@ -1,11 +1,12 @@
 import React from 'react';
 import { useDemandResponse } from '../../../hooks/useMLEndpoints';
 
-export default function DemandResponseTab() {
-    const { data, loading, error } = useDemandResponse(24);
+export default function DemandResponseTab({ mock }) {
+    const { data: fetched, loading, error } = useDemandResponse(24, { skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Loading peak forecast…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Loading peak forecast…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const preds = data?.predictions || [];
 

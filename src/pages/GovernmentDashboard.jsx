@@ -22,10 +22,11 @@ const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN'));
 function Loading() { return <div className="role-loading">Loading…</div>; }
 function ErrorBox({ msg }) { return <div className="role-error">⚠ {msg}</div>; }
 
-function StatesTab() {
-    const { data, loading, error } = useGovOverview();
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function StatesTab({ mock }) {
+    const { data: fetched, loading, error } = useGovOverview({ skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const rows = data?.byState || [];
     return (
         <>
@@ -52,10 +53,11 @@ function StatesTab() {
     );
 }
 
-function SegmentationTab() {
-    const { data, loading, error } = useGovSegmentation(3);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function SegmentationTab({ mock }) {
+    const { data: fetched, loading, error } = useGovSegmentation(3, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const clusters = data?.clusters || [];
     return (
         <div className="role-stack">
@@ -82,10 +84,11 @@ function SegmentationTab() {
     );
 }
 
-function TariffTab() {
-    const { data, loading, error } = useGovTariffDistribution();
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function TariffTab({ mock }) {
+    const { data: fetched, loading, error } = useGovTariffDistribution({ skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const rows = data?.distribution || [];
     return (
         <div className="role-card">
@@ -104,10 +107,11 @@ function TariffTab() {
     );
 }
 
-function TrendTab() {
-    const { data, loading, error } = useGovConsumptionTrend(6);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function TrendTab({ mock }) {
+    const { data: fetched, loading, error } = useGovConsumptionTrend(6, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const trend = data?.trend || [];
     return (
         <div className="role-card">
@@ -128,8 +132,9 @@ function TrendTab() {
     );
 }
 
-export default function GovernmentDashboard() {
-    const { user } = useAuth();
+export default function GovernmentDashboard({ mocks, user: userProp }) {
+    const { user: authUser } = useAuth();
+    const user = userProp || authUser;
     const [tab, setTab] = useState('states');
 
     return (
@@ -140,10 +145,10 @@ export default function GovernmentDashboard() {
                     <span className="role-header-tag">Government Dashboard</span>
                     <h1 className="role-header-title">{TABS.find(t => t.id === tab)?.label}</h1>
                 </header>
-                {tab === 'states' && <StatesTab />}
-                {tab === 'segmentation' && <SegmentationTab />}
-                {tab === 'tariff' && <TariffTab />}
-                {tab === 'trend' && <TrendTab />}
+                {tab === 'states' && <StatesTab mock={mocks?.states} />}
+                {tab === 'segmentation' && <SegmentationTab mock={mocks?.segmentation} />}
+                {tab === 'tariff' && <TariffTab mock={mocks?.tariff} />}
+                {tab === 'trend' && <TrendTab mock={mocks?.trend} />}
             </main>
         </div>
     );

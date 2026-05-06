@@ -336,3 +336,71 @@
   .role-stat-wide { grid-column: span 2; }
   .role-hero-v { font-size: 1.8rem; }
 }
+
+/* ─── Preview-only role switcher (floating top-right) ──────────── */
+.preview-switch {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(0, 8, 22, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 170, 255, 0.3);
+  border-radius: 999px;
+  padding: 0.4rem 0.5rem 0.4rem 1rem;
+  box-shadow: 0 12px 40px -10px rgba(0, 170, 255, 0.4);
+}
+
+.preview-switch-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: var(--electric);
+  text-transform: uppercase;
+}
+
+.preview-switch-tabs {
+  display: flex;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.preview-switch-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.preview-switch-btn:hover { color: #fff; }
+.preview-switch-btn.on {
+  background: rgba(0, 170, 255, 0.2);
+  color: var(--electric);
+}
+
+@media (max-width: 700px) {
+  .preview-switch {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    border-radius: 8px;
+    padding: 0.4rem;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .preview-switch-tabs { width: 100%; }
+  .preview-switch-btn { flex: 1; padding: 0.4rem 0.4rem; }
+}

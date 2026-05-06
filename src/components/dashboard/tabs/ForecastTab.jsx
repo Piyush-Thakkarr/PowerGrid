@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useForecast } from '../../../hooks/useMLEndpoints';
 
-export default function ForecastTab() {
+export default function ForecastTab({ mock }) {
     const [horizon, setHorizon] = useState(7);
-    const { data, loading, error } = useForecast(horizon);
+    const { data: fetched, loading, error } = useForecast(horizon, { skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Loading forecast…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Loading forecast…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const series = data?.predictions || [];
     const features = data?.topFeatures || [];

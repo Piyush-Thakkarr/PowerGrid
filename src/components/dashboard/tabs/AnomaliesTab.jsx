@@ -4,11 +4,12 @@ import { useAnomalies } from '../../../hooks/useMLEndpoints';
 
 const SEV_COLOR = { high: '#ff4d4f', medium: '#febc2e', low: '#82C8E5' };
 
-export default function AnomaliesTab() {
-    const { data, loading, error } = useAnomalies(2.0);
+export default function AnomaliesTab({ mock }) {
+    const { data: fetched, loading, error } = useAnomalies(2.0, { skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Loading anomalies…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Loading anomalies…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const anomalies = data?.anomalies || [];
     const dec = data?.decomposition;

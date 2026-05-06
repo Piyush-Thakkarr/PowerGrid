@@ -4,11 +4,12 @@ import { useApplianceBreakdown } from '../../../hooks/useMLEndpoints';
 
 const COLORS = ['#00aaff', '#82C8E5', '#0066cc', '#0047AB', '#5db4d8', '#88e0ff'];
 
-export default function ApplianceTab() {
-    const { data, loading, error } = useApplianceBreakdown(30);
+export default function ApplianceTab({ mock }) {
+    const { data: fetched, loading, error } = useApplianceBreakdown(30, { skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Loading appliance breakdown…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Loading appliance breakdown…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const breakdown = data?.breakdown || [];
     const components = data?.nmfComponents || [];

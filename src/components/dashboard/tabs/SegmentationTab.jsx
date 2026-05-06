@@ -1,11 +1,12 @@
 import React from 'react';
 import { useMySegmentation } from '../../../hooks/useMLEndpoints';
 
-export default function SegmentationTab() {
-    const { data, loading, error } = useMySegmentation();
+export default function SegmentationTab({ mock }) {
+    const { data: fetched, loading, error } = useMySegmentation({ skip: !!mock });
+    const data = mock || fetched;
 
-    if (loading) return <div className="role-loading">Finding your segment…</div>;
-    if (error) return <div className="role-error">⚠ {error}</div>;
+    if (!mock && loading) return <div className="role-loading">Finding your segment…</div>;
+    if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     return (
         <div className="role-stack">

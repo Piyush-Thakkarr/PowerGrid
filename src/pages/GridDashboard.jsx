@@ -21,10 +21,11 @@ const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN'));
 function Loading() { return <div className="role-loading">Loading…</div>; }
 function ErrorBox({ msg }) { return <div className="role-error">⚠ {msg}</div>; }
 
-function DemandTab() {
-    const { data, loading, error } = useGridDemand(7);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function DemandTab({ mock }) {
+    const { data: fetched, loading, error } = useGridDemand(7, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const curve = data?.demandCurve || [];
     return (
         <>
@@ -50,10 +51,11 @@ function DemandTab() {
     );
 }
 
-function PeaksTab() {
-    const { data, loading, error } = useGridPeakHistory(30);
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function PeaksTab({ mock }) {
+    const { data: fetched, loading, error } = useGridPeakHistory(30, { skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const peaks = data?.peakHistory || [];
     return (
         <>
@@ -78,10 +80,11 @@ function PeaksTab() {
     );
 }
 
-function LoadTab() {
-    const { data, loading, error } = useGridLoadDistribution();
-    if (loading) return <Loading />;
-    if (error) return <ErrorBox msg={error} />;
+function LoadTab({ mock }) {
+    const { data: fetched, loading, error } = useGridLoadDistribution({ skip: !!mock });
+    const data = mock || fetched;
+    if (!mock && loading) return <Loading />;
+    if (!mock && error) return <ErrorBox msg={error} />;
     const areas = data?.areas || [];
     return (
         <div className="role-card">
@@ -116,8 +119,9 @@ function LoadTab() {
     );
 }
 
-export default function GridDashboard() {
-    const { user } = useAuth();
+export default function GridDashboard({ mocks, user: userProp }) {
+    const { user: authUser } = useAuth();
+    const user = userProp || authUser;
     const [tab, setTab] = useState('demand');
 
     return (
@@ -128,9 +132,9 @@ export default function GridDashboard() {
                     <span className="role-header-tag">Grid Operator Dashboard</span>
                     <h1 className="role-header-title">{TABS.find(t => t.id === tab)?.label}</h1>
                 </header>
-                {tab === 'demand' && <DemandTab />}
-                {tab === 'peaks' && <PeaksTab />}
-                {tab === 'load' && <LoadTab />}
+                {tab === 'demand' && <DemandTab mock={mocks?.demand} />}
+                {tab === 'peaks' && <PeaksTab mock={mocks?.peaks} />}
+                {tab === 'load' && <LoadTab mock={mocks?.load} />}
             </main>
         </div>
     );
