@@ -72,6 +72,7 @@ def set_cached_model(user_id, model_name: str, model):
     r = _get_redis()
     if r:
         r.setex(f"pg:model:{key}", MODEL_TTL, pickle.dumps(model))
+        r.setex(f"pg:owner:pg:model:{key}", MODEL_TTL, str(user_id))
         return
 
     _model_cache[key] = (model, time.time())
@@ -99,6 +100,7 @@ def set_cached_response(user_id, endpoint: str, response, **params):
     r = _get_redis()
     if r:
         r.setex(f"pg:resp:{key}", RESPONSE_TTL, json.dumps(response))
+        r.setex(f"pg:owner:pg:resp:{key}", RESPONSE_TTL, str(user_id))
         return
 
     _response_cache[key] = (response, time.time())
@@ -108,9 +110,12 @@ def clear_user_cache(user_id):
     uid = str(user_id)
     r = _get_redis()
     if r:
-        for pattern in [f"pg:model:*", f"pg:resp:*"]:
-            for key in r.scan_iter(pattern):
-                r.delete(key)
+        for prefix in ["pg:model", "pg:resp"]:
+            for key in r.scan_iter(f"{prefix}:*"):
+                tag = r.get(f"pg:owner:{key}")
+                if tag and tag.decode() == uid:
+                    r.delete(key)
+                    r.delete(f"pg:owner:{key}")
         return
 
     for cache in [_model_cache, _response_cache]:
