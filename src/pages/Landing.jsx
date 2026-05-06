@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { SignUpButton } from '@clerk/clerk-react';
 import { useAuth } from '../context/AuthContext';
 import PowerGrid from '../components/PowerGrid';
 import Cursor from '../components/Cursor';
@@ -45,7 +46,9 @@ export default function Landing() {
                         {user ? (
                             <Link to="/dashboard" className="btn-p"><span>Go to Dashboard</span></Link>
                         ) : (
-                            <Link to="/signup" className="btn-p"><span>Get Started</span></Link>
+                            <SignUpButton mode="modal">
+                                <button type="button" className="btn-p"><span>Get Started</span></button>
+                            </SignUpButton>
                         )}
                     </div>
                 </div>

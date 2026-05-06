@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
@@ -48,16 +49,23 @@ export default function Navbar() {
                 <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
                 <a href="#how" onClick={() => setMenuOpen(false)}>Process</a>
                 <a href="#metrics" onClick={() => setMenuOpen(false)}>Impact</a>
-                {user && (
+                <SignedIn>
                     <Link to="/dashboard" className="nav-mobile-signin" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-                )}
+                </SignedIn>
             </div>
             <div className="nav-auth">
-                {user ? (
+                <SignedOut>
+                    <SignInButton mode="modal">
+                        <button className="nav-btn nav-btn-ghost">Sign in</button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                        <button className="nav-btn">Get Started</button>
+                    </SignUpButton>
+                </SignedOut>
+                <SignedIn>
                     <Link to="/dashboard" className="nav-btn">Dashboard</Link>
-                ) : (
-                    <Link to="/signup" className="nav-btn">Get Started</Link>
-                )}
+                    <UserButton afterSignOutUrl="/" />
+                </SignedIn>
             </div>
             <button className="nav-hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
                 <span></span><span></span><span></span>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { SignUpButton } from '@clerk/clerk-react';
 import { useAuth } from '../context/AuthContext';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
@@ -40,7 +41,9 @@ export default function CTA() {
                             {user ? (
                                 <Link to="/dashboard" className="btn-p btn-pulse"><span>Go to Dashboard</span><span>→</span></Link>
                             ) : (
-                                <Link to="/signup" className="btn-p btn-pulse"><span>Claim Free Access</span><span>→</span></Link>
+                                <SignUpButton mode="modal">
+                                    <button type="button" className="btn-p btn-pulse"><span>Claim Free Access</span><span>→</span></button>
+                                </SignUpButton>
                             )}
                             <a href="#features" className="nav-btn" style={{ padding: '.85rem 2rem' }}>Explore Features</a>
                         </div>

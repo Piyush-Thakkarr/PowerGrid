@@ -58,8 +58,7 @@ export default function Dashboard() {
     const handleLogout = async () => {
         if (loggingOut) return;
         setLoggingOut(true);
-        try { await Promise.race([logout(), new Promise(r => setTimeout(r, 2000))]); } catch { }
-        Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+        try { await logout(); } catch { /* swallow */ }
         navigate('/', { replace: true });
     };
 

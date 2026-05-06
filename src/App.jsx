@@ -1,12 +1,12 @@
 import React from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
 import RoleDashboard from './components/dashboard/RoleDashboard';
 import DashboardPreview from './pages/DashboardPreview';
+import OnboardingForm from './components/auth/OnboardingForm';
 import './styles/index.css';
 
 function LoadingScreen() {
@@ -23,17 +23,11 @@ function LoadingScreen() {
     );
 }
 
-function ProtectedRoute({ children }) {
-    const { user, loading } = useAuth();
+function DashboardGate() {
+    const { loading, needsOnboarding } = useAuth();
     if (loading) return <LoadingScreen />;
-    return user ? children : <Navigate to="/login" replace />;
-}
-
-function AuthRoute({ children }) {
-    const { user, loading, passwordRecovery } = useAuth();
-    if (loading) return <LoadingScreen />;
-    if (user && !passwordRecovery) return <Navigate to="/dashboard" replace />;
-    return children;
+    if (needsOnboarding) return <OnboardingForm />;
+    return <RoleDashboard />;
 }
 
 function NotFound() {
@@ -51,30 +45,38 @@ function NotFound() {
     );
 }
 
-function App() {
+export default function App() {
     return (
         <Routes>
-            {/* Landing page: always accessible, even for logged-in users */}
-            <Route path="/" element={<><Navbar /><Landing /></>} />
-            <Route path="/login" element={
-                <AuthRoute>
-                    <Login />
-                </AuthRoute>
+            {/* Landing — public, but redirects signed-in users to dashboard */}
+            <Route path="/" element={
+                <>
+                    <SignedOut>
+                        <Navbar />
+                        <Landing />
+                    </SignedOut>
+                    <SignedIn>
+                        <Navigate to="/dashboard" replace />
+                    </SignedIn>
+                </>
             } />
-            <Route path="/signup" element={
-                <AuthRoute>
-                    <Signup />
-                </AuthRoute>
-            } />
+
+            {/* Dashboard — Clerk-gated, then onboarding gate, then role dispatch */}
             <Route path="/dashboard" element={
-                <ProtectedRoute>
-                    <RoleDashboard />
-                </ProtectedRoute>
+                <>
+                    <SignedIn><DashboardGate /></SignedIn>
+                    <SignedOut><RedirectToSignIn /></SignedOut>
+                </>
             } />
+
+            {/* Public preview, no auth */}
             <Route path="/preview" element={<DashboardPreview />} />
+
+            {/* Legacy /login + /signup routes — Clerk's modal replaces them */}
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/signup" element={<Navigate to="/" replace />} />
+
             <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
-
-export default App;

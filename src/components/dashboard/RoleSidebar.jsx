@@ -8,8 +8,7 @@ export default function RoleSidebar({ tabs, tab, onTabChange, user, title }) {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        try { await Promise.race([logout(), new Promise(r => setTimeout(r, 1500))]); } catch {}
-        Object.keys(localStorage).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+        try { await logout(); } catch { /* swallow */ }
         navigate('/', { replace: true });
     };
 
