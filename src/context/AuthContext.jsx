@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { apiFetch } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -9,26 +10,31 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [passwordRecovery, setPasswordRecovery] = useState(false);
 
-    // Fetch user profile from Supabase profiles table
-    const fetchProfile = async (userId) => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-        if (error) console.warn('fetchProfile error:', error);
-        setProfile(data);
-        return data;
+    // Fetch user profile via backend (token-authenticated, no direct DB access)
+    const fetchProfile = async () => {
+        try {
+            const data = await apiFetch('/api/auth/me');
+            setProfile(data);
+            return data;
+        } catch (e) {
+            console.warn('fetchProfile error:', e);
+            return null;
+        }
     };
 
-    // Create or update profile in Supabase
-    const upsertProfile = async (userId, profileData) => {
-        const { data, error } = await supabase
-            .from('profiles')
-            .upsert({ id: userId, ...profileData, updated_at: new Date().toISOString() })
-            .select()
-            .single();
-        if (error) throw error;
+    // Update profile via backend. Accepts either snake_case (legacy callers) or
+    // camelCase keys; backend expects camelCase.
+    const upsertProfile = async (_userId, profileData) => {
+        const body = {
+            name: profileData.name,
+            householdSize: profileData.householdSize ?? profileData.household_size,
+            state: profileData.state,
+            tariffPlan: profileData.tariffPlan ?? profileData.tariff_plan,
+        };
+        const data = await apiFetch('/api/auth/profile', {
+            method: 'PUT',
+            body: JSON.stringify(body),
+        });
         setProfile(data);
         return data;
     };
@@ -43,7 +49,7 @@ export function AuthProvider({ children }) {
             clearTimeout(timeout);
             setUser(session?.user ?? null);
             if (session?.user) {
-                fetchProfile(session.user.id);
+                fetchProfile();
             }
             setLoading(false);
         }).catch(() => {
@@ -59,20 +65,21 @@ export function AuthProvider({ children }) {
                 }
                 setUser(session?.user ?? null);
                 if (session?.user) {
-                    const existingProfile = await fetchProfile(session.user.id);
+                    const existingProfile = await fetchProfile();
 
                     // Auto-create profile if missing (OAuth users, or email users
-                    // whose profile creation failed due to RLS during signup)
+                    // whose profile creation failed during signup)
                     if (!existingProfile) {
-                        await upsertProfile(session.user.id, {
-                            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
-                            email: session.user.email,
-                            household_size: 4,
-                            state: 'Gujarat',
-                            tariff_plan: 'Residential',
-                            xp: 0,
-                            level: 1,
-                        });
+                        try {
+                            await upsertProfile(session.user.id, {
+                                name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+                                householdSize: 4,
+                                state: 'Gujarat',
+                                tariffPlan: 'Residential',
+                            });
+                        } catch (e) {
+                            console.warn('Auto profile creation failed:', e.message);
+                        }
                     }
                 } else {
                     setProfile(null);
@@ -100,18 +107,15 @@ export function AuthProvider({ children }) {
         });
         if (error) throw error;
 
-        // Create profile row (may fail under RLS if email confirmation is required
-        // and there's no active session — profile will be created on first login instead)
-        if (data.user) {
+        // Create profile row (will fail with no active session if email confirmation
+        // is required — backend will auto-create on first /api/auth/me call instead)
+        if (data.user && data.session) {
             try {
                 await upsertProfile(data.user.id, {
                     name,
-                    email,
-                    household_size: householdSize || 4,
+                    householdSize: householdSize || 4,
                     state: state || 'Gujarat',
-                    tariff_plan: tariffPlan || 'Residential',
-                    xp: 0,
-                    level: 1,
+                    tariffPlan: tariffPlan || 'Residential',
                 });
             } catch (err) {
                 console.warn('Profile creation deferred to first login:', err.message);
@@ -201,18 +205,20 @@ export function AuthProvider({ children }) {
         return upsertProfile(user.id, updates);
     };
 
-    // Combined user data (auth + profile)
+    // Combined user data (auth + profile from backend).
+    // Backend returns camelCase; fall back to snake_case for legacy callers.
     const userData = user ? {
         id: user.id,
-        email: user.email,
-        phone: user.phone,
+        email: profile?.email || user.email,
+        phone: profile?.phone || user.phone,
         name: profile?.name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
-        householdSize: profile?.household_size || 4,
+        householdSize: profile?.householdSize ?? profile?.household_size ?? 4,
         state: profile?.state || 'Gujarat',
-        tariffPlan: profile?.tariff_plan || 'Residential',
+        tariffPlan: profile?.tariffPlan || profile?.tariff_plan || 'Residential',
         xp: profile?.xp || 0,
         level: profile?.level || 1,
-        createdAt: user.created_at,
+        role: profile?.role || 'consumer',
+        createdAt: profile?.createdAt || user.created_at,
         avatarUrl: user.user_metadata?.avatar_url,
         provider: user.app_metadata?.provider,
         needsProfile: !profile,
