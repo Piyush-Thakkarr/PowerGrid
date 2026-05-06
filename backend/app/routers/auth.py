@@ -129,6 +129,10 @@ async def update_profile(body: ProfileUpdateRequest, user=Depends(get_current_us
         profile.discom = body.discom
 
     await db.flush()
+
+    from app.services.ml_cache import clear_user_cache
+    clear_user_cache(user.id)
+
     return user_to_response(user, profile)
 
 
