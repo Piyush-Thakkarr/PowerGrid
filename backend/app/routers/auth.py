@@ -68,9 +68,34 @@ async def get_current_user(
 ):
     payload = decode_token(credentials.credentials)
     user_id = payload.get("sub")
-    email = payload.get("email", "")
     if not user_id:
         raise HTTPException(status_code=401, detail="Missing sub in token")
+
+    # Clerk JWT may not include email — try multiple locations
+    email = ""
+    for key in ["email", "primary_email_address", "email_address"]:
+        if payload.get(key):
+            email = payload[key]
+            break
+
+    # If still no email, fetch from Clerk API
+    if not email:
+        try:
+            settings = get_settings()
+            import urllib.request
+            req = urllib.request.Request(
+                f"https://api.clerk.com/v1/users/{user_id}",
+                headers={"Authorization": f"Bearer {settings.clerk_secret_key}"},
+            )
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                import json
+                clerk_user = json.loads(resp.read())
+                addrs = clerk_user.get("email_addresses", [])
+                if addrs:
+                    email = addrs[0].get("email_address", "")
+        except Exception:
+            pass
+
     return await get_or_create_user(user_id, email)
 
 

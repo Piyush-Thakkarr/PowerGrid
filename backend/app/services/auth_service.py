@@ -34,17 +34,18 @@ async def get_or_create_user(user_id: str, email: str = "", provider: str = "ema
         name = email.split("@")[0] if email else ""
         role, state = await _resolve_role(email)
 
+        # Use unique email or NULL to avoid duplicate constraint on empty strings
+        db_email = email if email else None
+
         await execute(
-            "INSERT INTO users (id, email, name, role, provider) VALUES ($1, $2, $3, $4, $5)",
-            uid, email, name, role, provider,
+            "INSERT INTO users (id, email, name, role, provider) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO NOTHING",
+            uid, db_email, name, role, provider,
         )
 
-        if state:
-            await execute(
-                "INSERT INTO user_profiles (user_id, state) VALUES ($1, $2)", uid, state,
-            )
-        else:
-            await execute("INSERT INTO user_profiles (user_id) VALUES ($1)", uid)
+        await execute(
+            "INSERT INTO user_profiles (user_id, state) VALUES ($1, $2) ON CONFLICT (user_id) DO NOTHING",
+            uid, state,
+        )
 
         row = await fetchrow("SELECT * FROM users WHERE id = $1", uid)
 
