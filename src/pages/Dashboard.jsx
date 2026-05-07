@@ -8,18 +8,10 @@ import { DASHBOARD_TABS } from '../lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/dashboard/Sidebar';
 import OverviewTab from '../components/dashboard/tabs/OverviewTab';
-import AnalyticsTab from '../components/dashboard/tabs/AnalyticsTab';
 import BillingTab from '../components/dashboard/tabs/BillingTab';
-import CompareTab from '../components/dashboard/tabs/CompareTab';
-import RewardsTab from '../components/dashboard/tabs/RewardsTab';
 import ProfileTab from '../components/dashboard/tabs/ProfileTab';
-import MLTab from '../components/dashboard/tabs/MLTab';
-import ApplianceTab from '../components/dashboard/tabs/ApplianceTab';
 import ForecastTab from '../components/dashboard/tabs/ForecastTab';
-import AnomaliesTab from '../components/dashboard/tabs/AnomaliesTab';
 import TariffTab from '../components/dashboard/tabs/TariffTab';
-import DemandResponseTab from '../components/dashboard/tabs/DemandResponseTab';
-import SegmentationTab from '../components/dashboard/tabs/SegmentationTab';
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -66,7 +58,6 @@ export default function Dashboard() {
     const xpData = dashData?.xp || { xp: 0, level: 1 };
     const billing = { bill: dashData?.billing || null, history: dashData?.billHistory || [] };
     const comparison = { data: dashData?.comparison || null };
-    const gamification = { xp: xpData, achievements: dashData?.achievements || { achievements: [], totalUnlocked: 0, totalAvailable: 0 }, challenges: dashData?.challenges || [], leaderboard: dashData?.leaderboard || [] };
 
     return (
         <div className="dash-page">
@@ -77,18 +68,10 @@ export default function Dashboard() {
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
                         {tab === 'overview' && <OverviewTab liveWatts={liveWatts} todayUnits={stats.todayKwh || 0} thisMonthUnits={stats.thisMonthKwh || 0} monthChange={stats.monthChangePercent || 0} peakWatts={stats.peakWatts || 0} bill={billing.bill} gamification={xpData} comparison={comparison.data} hourlyData={dashData?.hourly || []} chartData={chartProps.data} chartKey={chartProps.chartKey} chartView={chartView} setChartView={setChartView} loading={chartProps.loading} />}
-                        {tab === 'analytics' && <AnalyticsTab chartData={chartProps.data} chartKey={chartProps.chartKey} loading={chartProps.loading} />}
-                        {tab === 'appliance' && <ApplianceTab />}
                         {tab === 'forecast' && <ForecastTab />}
-                        {tab === 'anomalies' && <AnomaliesTab />}
                         {tab === 'tariff' && <TariffTab />}
-                        {tab === 'demand' && <DemandResponseTab />}
-                        {tab === 'segment' && <SegmentationTab />}
                         {tab === 'billing' && <BillingTab bill={billing.bill} history={billing.history} loading={dashLoading} user={user} />}
-                        {tab === 'compare' && <CompareTab comparison={comparison.data} loading={dashLoading} user={user} />}
-                        {tab === 'rewards' && <RewardsTab gamification={gamification} user={user} loading={dashLoading} />}
                         {tab === 'profile' && <ProfileTab user={user} gamification={xpData} />}
-                        {tab === 'ml' && <MLTab />}
                     </motion.div>
                 </AnimatePresence>
             </main>
