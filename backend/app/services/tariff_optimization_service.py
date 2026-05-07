@@ -51,7 +51,6 @@ async def optimize_tariff(user_id: UUID) -> dict:
         raise HTTPException(status_code=404, detail="No consumption data")
 
     peak_kwh = sum(v for h, v in hourly.items() if 9 <= h < 21)
-    offpeak_kwh = monthly_kwh - peak_kwh
     peak_pct = peak_kwh / monthly_kwh if monthly_kwh > 0 else 0
 
     categories = ["Residential", "Commercial", "Industrial"]

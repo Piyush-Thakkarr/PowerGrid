@@ -12,25 +12,6 @@ async def _latest_date_str(user_id: UUID) -> str:
     return latest.isoformat() if latest else datetime.now().isoformat()
 
 
-async def get_live_reading(user_id: UUID) -> dict | None:
-    row = await fetchrow(
-        """SELECT timestamp, power_watts, energy_kwh, voltage, current_amps, frequency
-           FROM consumption_data WHERE user_id = $1
-           ORDER BY timestamp DESC LIMIT 1""",
-        user_id,
-    )
-    if not row:
-        return None
-    return {
-        "timestamp": row["timestamp"].isoformat(),
-        "powerWatts": row["power_watts"],
-        "energyKwh": row["energy_kwh"],
-        "voltage": row["voltage"],
-        "currentAmps": row["current_amps"],
-        "frequency": row["frequency"],
-    }
-
-
 async def get_hourly(user_id: UUID, date_str: str | None) -> list[dict]:
     if date_str and date_str != "null":
         target = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -106,21 +87,6 @@ async def get_monthly(user_id: UUID, months: int = 6) -> list[dict]:
          "avgWatts": round(r["avg_watts"], 1), "readings": r["readings"]}
         for r in rows
     ]
-
-
-async def get_heatmap(user_id: UUID, days: int = 30) -> list[dict]:
-    rows = await fetch(
-        """SELECT EXTRACT(DOW FROM timestamp)::int AS dow,
-                  EXTRACT(HOUR FROM timestamp)::int AS hour,
-                  AVG(energy_kwh) AS avg_kwh
-           FROM consumption_data
-           WHERE user_id = $1
-             AND timestamp >= (SELECT MAX(timestamp) - make_interval(days => $2)
-                               FROM consumption_data WHERE user_id = $1)
-           GROUP BY dow, hour ORDER BY dow, hour""",
-        user_id, days,
-    )
-    return [{"dayOfWeek": r["dow"], "hour": r["hour"], "avgKwh": round(r["avg_kwh"], 4)} for r in rows]
 
 
 async def get_stats(user_id: UUID) -> dict:

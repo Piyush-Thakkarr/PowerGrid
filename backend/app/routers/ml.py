@@ -27,11 +27,6 @@ async def anomalies(
     return await anomaly_service.detect_anomalies(user["id"], t)
 
 
-@router.get("/segmentation")
-async def segmentation(clusters: int = Query(3, ge=2, le=7), user=Depends(get_current_user)):
-    return await segmentation_service.segment_users(clusters)
-
-
 @router.get("/segmentation/me")
 async def my_segment(user=Depends(get_current_user)):
     return await segmentation_service.get_user_segment(user["id"])
@@ -57,33 +52,12 @@ async def recommendations(user=Depends(get_current_user)):
     return await recommendation_service.get_recommendations(user["id"])
 
 
-# ── Backward compat for deployed frontend ───────────
+# ── Backward compat for deployed frontend (used by useMLData.js) ──
 
 @router.get("/forecast/compare")
 async def forecast_compare_compat(horizon: int = Query(7, ge=1, le=30), user=Depends(get_current_user)):
     result = await forecast_service.forecast(user["id"], horizon)
     return {"sarima": result, "extra_trees": result, "bestModel": "extra_trees"}
-
-
-@router.get("/forecast/sarima")
-async def forecast_sarima_compat(horizon: int = Query(7, ge=1, le=30), user=Depends(get_current_user)):
-    return await forecast_service.forecast(user["id"], horizon)
-
-
-@router.get("/forecast/prophet")
-async def forecast_prophet_compat(horizon: int = Query(7, ge=1, le=30), user=Depends(get_current_user)):
-    return await forecast_service.forecast(user["id"], horizon)
-
-
-@router.get("/forecast/neural")
-async def forecast_neural_compat(horizon: int = Query(7, ge=1, le=30), user=Depends(get_current_user)):
-    return await forecast_service.forecast(user["id"], horizon)
-
-
-@router.get("/decomposition")
-async def decomposition_compat(user=Depends(get_current_user)):
-    result = await anomaly_service.detect_anomalies(user["id"])
-    return result.get("decomposition", {})
 
 
 @router.get("/peak-hours")

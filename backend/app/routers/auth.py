@@ -1,6 +1,5 @@
 """Auth + Profile endpoints — Clerk JWT verification."""
 
-import uuid as uuid_mod
 import json
 import urllib.request
 
@@ -99,9 +98,6 @@ async def get_current_user(
     return await get_or_create_user(user_id, email)
 
 
-VALID_ROLES = {"consumer", "discom", "government", "grid_operator"}
-
-
 def require_role(*roles: str):
     async def checker(user=Depends(get_current_user)):
         if user.get("role", "consumer") not in roles:
@@ -143,8 +139,6 @@ async def update_profile(body: ProfileUpdateRequest, user=Depends(get_current_us
         updates.append(f"state = ${idx}"); params.append(body.state); idx += 1
     if body.tariffPlan is not None:
         updates.append(f"tariff_plan = ${idx}"); params.append(body.tariffPlan); idx += 1
-    if body.discom is not None:
-        updates.append(f"discom = ${idx}"); params.append(body.discom); idx += 1
 
     if updates:
         await execute(f"UPDATE user_profiles SET {', '.join(updates)} WHERE user_id = $1", *params)
@@ -155,21 +149,3 @@ async def update_profile(body: ProfileUpdateRequest, user=Depends(get_current_us
     user = await fetchrow("SELECT * FROM users WHERE id = $1", user["id"])
     profile = await fetchrow("SELECT * FROM user_profiles WHERE user_id = $1", user["id"])
     return user_to_response(user, profile)
-
-
-# ---- Admin: Role management ----
-
-@router.put("/assign-role")
-async def assign_role(target_user_id: str, role: str, user=Depends(require_role("government"))):
-    if role not in VALID_ROLES:
-        raise HTTPException(status_code=422, detail=f"Invalid role. Must be one of: {', '.join(VALID_ROLES)}")
-    import uuid
-    try:
-        uid = uuid.UUID(target_user_id)
-    except ValueError:
-        raise HTTPException(status_code=422, detail="Invalid user ID")
-    target = await fetchrow("SELECT id FROM users WHERE id = $1", uid)
-    if not target:
-        raise HTTPException(status_code=404, detail="User not found")
-    await execute("UPDATE users SET role = $1 WHERE id = $2", role, uid)
-    return {"userId": str(uid), "role": role}

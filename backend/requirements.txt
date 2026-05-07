@@ -1,7 +1,6 @@
 # Web framework
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
-python-multipart==0.0.12
 
 # Database (raw asyncpg — no ORM)
 asyncpg==0.30.0
@@ -10,7 +9,7 @@ asyncpg==0.30.0
 pyjwt[crypto]==2.9.0
 
 # Validation
-pydantic[email]==2.9.0
+pydantic==2.9.0
 pydantic-settings==2.5.0
 
 # Data processing
@@ -21,14 +20,3 @@ scipy==1.14.1
 # ML
 scikit-learn==1.5.2
 statsmodels==0.14.4
-
-# Rate limiting
-slowapi==0.1.9
-
-# Testing
-pytest==8.3.3
-pytest-asyncio==0.24.0
-httpx==0.27.2
-
-# Utilities
-python-dotenv==1.0.1

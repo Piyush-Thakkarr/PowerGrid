@@ -21,7 +21,6 @@ async def get_dashboard(user=Depends(get_current_user)):
         "stats": await _safe(consumption_service.get_stats(uid), {}),
         "monthly": await _safe(consumption_service.get_monthly(uid, 6), []),
         "hourly": await _safe(consumption_service.get_hourly(uid, None), []),
-        "heatmap": await _safe(consumption_service.get_heatmap(uid, 30), []),
         "billing": await _safe(billing_service.calculate_bill(uid, None, None)),
         "billHistory": await _safe(billing_service.get_bill_history(uid, 6), []),
         "comparison": await _safe(comparison_service.get_comparison(uid)),
