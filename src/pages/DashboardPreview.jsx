@@ -4,10 +4,12 @@ import { DASHBOARD_TABS } from '../lib/constants';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/dashboard/Sidebar';
 import OverviewTab from '../components/dashboard/tabs/OverviewTab';
+import AnalyticsTab from '../components/dashboard/tabs/AnalyticsTab';
 import BillingTab from '../components/dashboard/tabs/BillingTab';
+import CompareTab from '../components/dashboard/tabs/CompareTab';
+import RewardsTab from '../components/dashboard/tabs/RewardsTab';
+import MLTab from '../components/dashboard/tabs/MLTab';
 import ProfileTab from '../components/dashboard/tabs/ProfileTab';
-import ForecastTab from '../components/dashboard/tabs/ForecastTab';
-import TariffTab from '../components/dashboard/tabs/TariffTab';
 import DiscomDashboard from './DiscomDashboard';
 import GovernmentDashboard from './GovernmentDashboard';
 import GridDashboard from './GridDashboard';
@@ -126,9 +128,11 @@ function ConsumerPreview() {
                 <AnimatePresence mode="wait">
                     <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
                         {tab === 'overview' && <OverviewTab liveWatts={726} todayUnits={4.2} thisMonthUnits={108} monthChange={29} peakWatts={1842} bill={mockBill} gamification={mockXp} comparison={mockComparison} hourlyData={[]} chartData={mockChart} chartKey="month" chartView="monthly" setChartView={() => { }} loading={false} />}
-                        {tab === 'forecast' && <ForecastTab mock={mockForecast} />}
-                        {tab === 'tariff' && <TariffTab mock={mockTariff} />}
+                        {tab === 'analytics' && <AnalyticsTab chartData={mockChart} chartKey="month" loading={false} />}
                         {tab === 'billing' && <BillingTab bill={mockBill} history={mockHistory} loading={false} user={MOCK_USERS.consumer} />}
+                        {tab === 'compare' && <CompareTab comparison={mockComparison} loading={false} user={MOCK_USERS.consumer} />}
+                        {tab === 'rewards' && <RewardsTab gamification={mockGamification} user={MOCK_USERS.consumer} loading={false} />}
+                        {tab === 'ml' && <MLTab />}
                         {tab === 'profile' && <ProfileTab user={MOCK_USERS.consumer} gamification={mockXp} />}
                     </motion.div>
                 </AnimatePresence>
