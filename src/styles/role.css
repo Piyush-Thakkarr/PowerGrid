@@ -47,7 +47,7 @@
   padding: 2rem;
   text-align: center;
   color: rgba(255, 255, 255, 0.55);
-  background: #050508;
+  background: #0f1422;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
@@ -82,7 +82,7 @@
 
 /* ---- STAT CELL (matches .dash-c + .c-stat) ---- */
 .role-stat {
-  background: #050508;
+  background: #0f1422;
   padding: 1.2rem 1.15rem;
   display: flex;
   flex-direction: column;
@@ -93,27 +93,37 @@
 
 .role-stat-l {
   font-family: 'DM Mono', monospace;
-  font-size: .65rem;
-  color: rgba(255, 255, 255, 0.65);
-  letter-spacing: 2px;
+  font-size: .68rem;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 2.5px;
   text-transform: uppercase;
 }
 
 .role-stat-v {
-  font-family: 'DM Mono', monospace;
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -1px;
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -1.5px;
+  background: linear-gradient(135deg, #ffffff 0%, #82C8E5 60%, #00aaff 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(0, 170, 255, 0.18);
 }
 
 /* ---- CARD (matches .dash-c) ---- */
 .role-card {
-  background: #050508;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
-  padding: 1.2rem 1.15rem;
+  background: #0f1422;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 1.4rem 1.3rem;
+  transition: background .25s ease, border-color .25s ease;
+}
+
+.role-card:hover {
+  background: #131a2c;
+  border-color: rgba(0, 170, 255, 0.2);
 }
 
 .role-card-head {
@@ -182,7 +192,7 @@
   overflow-x: auto;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 3px;
-  background: #050508;
+  background: #0f1422;
 }
 
 .role-table {
@@ -272,7 +282,7 @@
 .role-card-hero {
   text-align: center;
   padding: 2rem 1.4rem;
-  background: #050508;
+  background: #0f1422;
   border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
@@ -286,12 +296,16 @@
 }
 
 .role-hero-v {
-  font-family: 'DM Mono', monospace;
-  font-size: 2.6rem;
-  font-weight: 300;
-  color: #fff;
+  font-family: Georgia, serif;
+  font-size: 3rem;
+  font-weight: 700;
   line-height: .95;
   letter-spacing: -2px;
+  background: linear-gradient(135deg, #ffffff 0%, #82C8E5 60%, #00aaff 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 28px rgba(0, 170, 255, 0.2);
 }
 
 .role-hero-sub {
@@ -312,7 +326,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.15rem;
-  background: #050508;
+  background: #0f1422;
   border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
@@ -386,7 +400,7 @@
   display: flex;
   align-items: center;
   gap: .6rem;
-  background: #050508;
+  background: #0f1422;
   border: 1px solid rgba(0, 170, 255, 0.25);
   border-radius: 3px;
   padding: .4rem .5rem .4rem .85rem;
