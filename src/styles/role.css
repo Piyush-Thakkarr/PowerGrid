@@ -1,123 +1,143 @@
-/* ─── Shared dashboard tab UI (role dashboards + new consumer tabs) ── */
+/* ─── Role dashboards + new consumer ML tabs — unified to dash- design language ── */
 
+/* ---- HEADER ---- */
 .role-header {
-  margin-bottom: 1.8rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .role-header-tag {
-  display: block;
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 3px;
-  color: rgba(0, 170, 255, 0.7);
+  font-size: .65rem;
+  color: #00aaff;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  margin-bottom: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.role-header-tag::before {
+  content: '';
+  width: 14px;
+  height: 1px;
+  background: #00aaff;
+  opacity: .6;
 }
 
 .role-header-title {
-  font-family: Georgia, serif;
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
   color: #fff;
   margin: 0;
-  letter-spacing: -0.3px;
+  letter-spacing: 0;
 }
 
+/* ---- LOADING / ERROR ---- */
 .role-loading,
 .role-error {
   font-family: 'DM Mono', monospace;
-  font-size: 0.85rem;
+  font-size: .8rem;
   letter-spacing: 1.5px;
   padding: 2rem;
   text-align: center;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(0, 8, 22, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  background: #050508;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
 }
 
-.role-error { color: #ff8080; border-color: rgba(255, 128, 128, 0.3); }
+.role-error {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.25);
+}
 
+/* ---- LAYOUT ---- */
 .role-stack {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
 }
 
 .role-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
   overflow: hidden;
   margin-bottom: 1.5rem;
 }
 
+/* ---- STAT CELL (matches .dash-c + .c-stat) ---- */
 .role-stat {
-  background: rgba(0, 8, 22, 0.85);
-  padding: 1.2rem 1.4rem;
+  background: #050508;
+  padding: 1.2rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  transition: background 0.3s;
+  gap: .65rem;
 }
-
-.role-stat:hover { background: rgba(0, 170, 255, 0.05); }
 
 .role-stat-wide { grid-column: span 2; }
 
 .role-stat-l {
   font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: .65rem;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
 .role-stat-v {
   font-family: 'DM Mono', monospace;
-  font-size: 1.4rem;
-  font-weight: 500;
-  background: linear-gradient(135deg, #00aaff 0%, #82C8E5 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
+/* ---- CARD (matches .dash-c) ---- */
 .role-card {
-  background: linear-gradient(180deg, rgba(0, 8, 22, 0.92), rgba(0, 0, 10, 0.85));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 1.4rem 1.4rem 1.5rem;
-  transition: border-color 0.3s;
+  background: #050508;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  padding: 1.2rem 1.15rem;
 }
-
-.role-card:hover { border-color: rgba(0, 170, 255, 0.25); }
 
 .role-card-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: .85rem;
   flex-wrap: wrap;
 }
 
 .role-card-title {
   font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
+  font-size: .65rem;
+  color: rgba(255, 255, 255, 0.65);
   letter-spacing: 2px;
-  color: rgba(0, 170, 255, 0.85);
   text-transform: uppercase;
 }
 
 .role-card-meta {
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: .6rem;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
 }
 
@@ -125,73 +145,82 @@
   width: 100%;
 }
 
+/* ---- TOGGLE ---- */
 .role-toggle {
   display: inline-flex;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
   padding: 2px;
 }
 
 .role-toggle button {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
+  font-size: .6rem;
+  letter-spacing: 1.5px;
+  padding: .35rem .85rem;
+  border-radius: 2px;
   cursor: pointer;
   text-transform: uppercase;
-  transition: background 0.25s, color 0.25s;
+  transition: background .2s, color .2s;
+}
+
+.role-toggle button:hover {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .role-toggle button.on {
-  background: rgba(0, 170, 255, 0.15);
+  background: rgba(0, 170, 255, 0.12);
   color: #00aaff;
 }
 
+/* ---- TABLE ---- */
 .role-table-wrap {
   overflow-x: auto;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  background: #050508;
 }
 
 .role-table {
   width: 100%;
   border-collapse: collapse;
   font-family: 'DM Mono', monospace;
-  font-size: 0.78rem;
+  font-size: .75rem;
 }
 
 .role-table thead {
-  background: rgba(0, 170, 255, 0.06);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .role-table th {
   text-align: left;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.6rem;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.7);
+  padding: .65rem .85rem;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 400;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .role-table td {
-  padding: 0.65rem 0.9rem;
+  padding: .55rem .85rem;
   color: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+.role-table tbody tr:last-child td { border-bottom: none; }
 .role-table tbody tr:hover { background: rgba(0, 170, 255, 0.04); }
 
 .role-table tr.role-row-highlight {
-  background: rgba(0, 170, 255, 0.08);
+  background: rgba(0, 170, 255, 0.06);
 }
 
+/* ---- PAGER ---- */
 .role-pager {
   display: flex;
   align-items: center;
@@ -199,136 +228,147 @@
   gap: 1.2rem;
   margin-top: 1.2rem;
   font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.65);
-  letter-spacing: 1px;
+  font-size: .65rem;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 1.5px;
 }
 
 .role-pager button {
-  background: rgba(0, 170, 255, 0.08);
-  border: 1px solid rgba(0, 170, 255, 0.25);
+  background: transparent;
+  border: 1px solid rgba(0, 170, 255, 0.3);
   color: #00aaff;
-  padding: 0.4rem 0.9rem;
-  border-radius: 4px;
+  padding: .35rem .8rem;
+  border-radius: 2px;
   font-family: inherit;
   font-size: inherit;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   cursor: pointer;
   text-transform: uppercase;
-  transition: background 0.25s;
+  transition: background .2s;
 }
 
-.role-pager button:hover:not(:disabled) { background: rgba(0, 170, 255, 0.15); }
-.role-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+.role-pager button:hover:not(:disabled) {
+  background: rgba(0, 170, 255, 0.1);
+}
 
+.role-pager button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---- PILL ---- */
 .role-pill {
   display: inline-block;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
+  padding: .15rem .5rem;
+  border-radius: 2px;
   border: 1px solid;
-  font-size: 0.6rem;
-  letter-spacing: 1px;
+  font-size: .55rem;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   font-family: 'DM Mono', monospace;
 }
 
-/* Hero card (recommended plan, my segment) */
+/* ---- HERO CARD (recommended plan / my segment) — matches .n-hero feel ---- */
 .role-card-hero {
   text-align: center;
-  padding: 2.2rem 1.4rem;
-  background: linear-gradient(180deg, rgba(0, 30, 60, 0.7), rgba(0, 8, 22, 0.85));
-  border-color: rgba(0, 170, 255, 0.3);
+  padding: 2rem 1.4rem;
+  background: #050508;
+  border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
 .role-hero-l {
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
+  font-size: .65rem;
   letter-spacing: 2.5px;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
-  margin-bottom: 0.5rem;
+  margin-bottom: .65rem;
 }
 
 .role-hero-v {
-  font-family: Georgia, serif;
-  font-size: 2.4rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #00aaff 0%, #82C8E5 60%, #ffffff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -1px;
-  line-height: 1.1;
+  font-family: 'DM Mono', monospace;
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: #fff;
+  line-height: .95;
+  letter-spacing: -2px;
 }
 
 .role-hero-sub {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.85);
-  margin-top: 0.7rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: .85rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: .65rem;
 }
 
 .role-hero-sub strong {
-  color: #00ff88;
-  font-weight: 700;
+  color: #00aaff;
+  font-weight: 500;
 }
 
-/* Tip card (recommendation message) */
+/* ---- TIP CARD ---- */
 .role-card-tip {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.1rem 1.4rem;
-  background: rgba(0, 170, 255, 0.06);
-  border-color: rgba(0, 170, 255, 0.25);
+  padding: 1rem 1.15rem;
+  background: #050508;
+  border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
 .role-card-tip-icon {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
+  color: #00aaff;
 }
 
 .role-card-tip-text {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Outfit', sans-serif;
+  font-size: .85rem;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.5;
 }
 
-/* Demand-response strip */
+/* ---- DEMAND-RESPONSE STRIP ---- */
 .dr-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
-  gap: 4px;
+  gap: 3px;
 }
 
 .dr-cell {
-  border-radius: 4px;
-  padding: 0.55rem 0.4rem;
+  border-radius: 2px;
+  padding: .55rem .35rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  transition: background .2s;
 }
 
-.dr-cell:hover { transform: translateY(-2px); }
+.dr-cell:hover {
+  background: rgba(0, 170, 255, 0.06);
+}
 
-.dr-cell-peak { border-color: rgba(255, 77, 79, 0.5); }
+.dr-cell-peak {
+  border-color: rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.06);
+}
 
 .dr-cell-h {
   font-family: 'DM Mono', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: .68rem;
+  font-weight: 500;
   color: #fff;
 }
 
 .dr-cell-p {
   font-family: 'DM Mono', monospace;
-  font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.5px;
+  font-size: .55rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: .5px;
 }
 
 @media (max-width: 700px) {
@@ -345,62 +385,58 @@
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: rgba(0, 8, 22, 0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 170, 255, 0.3);
-  border-radius: 999px;
-  padding: 0.4rem 0.5rem 0.4rem 1rem;
-  box-shadow: 0 12px 40px -10px rgba(0, 170, 255, 0.4);
+  gap: .6rem;
+  background: #050508;
+  border: 1px solid rgba(0, 170, 255, 0.25);
+  border-radius: 3px;
+  padding: .4rem .5rem .4rem .85rem;
 }
 
 .preview-switch-tag {
   font-family: 'DM Mono', monospace;
-  font-size: 0.55rem;
+  font-size: .55rem;
   letter-spacing: 2px;
-  color: var(--electric);
+  color: #00aaff;
   text-transform: uppercase;
 }
 
 .preview-switch-tabs {
   display: flex;
   gap: 2px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 2px;
   padding: 2px;
 }
 
 .preview-switch-btn {
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.55);
   font-family: 'DM Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  padding: 0.4rem 0.85rem;
-  border-radius: 999px;
+  font-size: .6rem;
+  letter-spacing: 1.5px;
+  padding: .35rem .8rem;
+  border-radius: 2px;
   cursor: pointer;
   text-transform: uppercase;
-  transition: background 0.2s, color 0.2s;
+  transition: background .2s, color .2s;
   white-space: nowrap;
 }
 
 .preview-switch-btn:hover { color: #fff; }
 .preview-switch-btn.on {
-  background: rgba(0, 170, 255, 0.2);
-  color: var(--electric);
+  background: rgba(0, 170, 255, 0.12);
+  color: #00aaff;
 }
 
 @media (max-width: 700px) {
   .preview-switch {
-    top: 0.5rem;
-    right: 0.5rem;
-    left: 0.5rem;
-    border-radius: 8px;
-    padding: 0.4rem;
+    top: .5rem;
+    right: .5rem;
+    left: .5rem;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: .4rem;
   }
   .preview-switch-tabs { width: 100%; }
-  .preview-switch-btn { flex: 1; padding: 0.4rem 0.4rem; }
+  .preview-switch-btn { flex: 1; }
 }
