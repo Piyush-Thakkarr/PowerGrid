@@ -8,7 +8,7 @@ export default function AnomaliesTab({ mock }) {
     const { data: fetched, loading, error } = useAnomalies(2.0, { skip: !!mock });
     const data = mock || fetched;
 
-    if (!mock && loading) return <div className="role-loading">Loading anomalies…</div>;
+    if (!mock && loading) return <div className="role-loading">Loading unusual days…</div>;
     if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const anomalies = data?.anomalies || [];
@@ -24,17 +24,17 @@ export default function AnomaliesTab({ mock }) {
     return (
         <div className="role-stack">
             <div className="role-grid">
-                <div className="role-stat"><span className="role-stat-l">Anomalies</span><span className="role-stat-v">{data?.anomalyCount || 0}</span></div>
+                <div className="role-stat"><span className="role-stat-l">Unusual days</span><span className="role-stat-v">{data?.anomalyCount || 0}</span></div>
                 <div className="role-stat"><span className="role-stat-l">Days analyzed</span><span className="role-stat-v">{data?.totalDays || 0}</span></div>
             </div>
 
             <div className="role-card">
-                <div className="role-card-head"><span className="role-card-title">Detected anomalies</span></div>
+                <div className="role-card-head"><span className="role-card-title">Days that don't match your usual pattern</span></div>
                 <div className="role-table-wrap">
                     <table className="role-table">
-                        <thead><tr><th>Date</th><th>Actual</th><th>Expected</th><th>Deviation</th><th>Z-score</th><th>Severity</th></tr></thead>
+                        <thead><tr><th>Date</th><th>Actual (kWh)</th><th>Expected (kWh)</th><th>Difference</th><th>How unusual</th><th>Severity</th></tr></thead>
                         <tbody>
-                            {anomalies.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center', padding: '1.5rem', color: 'rgba(255,255,255,0.5)' }}>No anomalies detected ✨</td></tr>}
+                            {anomalies.length === 0 && <tr><td colSpan="6" style={{ textAlign: 'center', padding: '1.5rem', color: 'rgba(255,255,255,0.5)' }}>No unusual days found — your usage is steady ✨</td></tr>}
                             {anomalies.map((a, i) => (
                                 <tr key={i}>
                                     <td>{a.date}</td>
@@ -52,7 +52,7 @@ export default function AnomaliesTab({ mock }) {
 
             {decomp.length > 0 && (
                 <div className="role-card">
-                    <div className="role-card-head"><span className="role-card-title">Time-series decomposition</span></div>
+                    <div className="role-card-head"><span className="role-card-title">Pattern breakdown · trend, weekly cycle, leftover</span></div>
                     <div className="role-chart">
                         <ResponsiveContainer width="100%" height={300}>
                             <LineChart data={decomp}>

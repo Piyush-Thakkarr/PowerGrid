@@ -7,7 +7,7 @@ export default function ForecastTab({ mock }) {
     const { data: fetched, loading, error } = useForecast(horizon, { skip: !!mock });
     const data = mock || fetched;
 
-    if (!mock && loading) return <div className="role-loading">Loading forecast…</div>;
+    if (!mock && loading) return <div className="role-loading">Predicting your usage…</div>;
     if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const series = data?.predictions || [];
@@ -17,7 +17,7 @@ export default function ForecastTab({ mock }) {
         <div className="role-stack">
             <div className="role-card">
                 <div className="role-card-head">
-                    <span className="role-card-title">Consumption forecast</span>
+                    <span className="role-card-title">Predicted electricity use</span>
                     <div className="role-toggle">
                         <button className={horizon === 7 ? 'on' : ''} onClick={() => setHorizon(7)}>7 days</button>
                         <button className={horizon === 14 ? 'on' : ''} onClick={() => setHorizon(14)}>14 days</button>
@@ -34,15 +34,15 @@ export default function ForecastTab({ mock }) {
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="role-card-meta" style={{ marginTop: '.6rem' }}>Model: {data?.model || '—'}</div>
+                <div className="role-card-meta" style={{ marginTop: '.6rem' }}>Powered by: {data?.model || '—'}</div>
             </div>
 
             {features.length > 0 && (
                 <div className="role-card">
-                    <div className="role-card-head"><span className="role-card-title">Top model features</span></div>
+                    <div className="role-card-head"><span className="role-card-title">What drives the prediction</span></div>
                     <div className="role-table-wrap">
                         <table className="role-table">
-                            <thead><tr><th>Feature</th><th>Importance</th></tr></thead>
+                            <thead><tr><th>Signal</th><th>Weight</th></tr></thead>
                             <tbody>
                                 {features.map(f => (
                                     <tr key={f.name}><td>{f.name}</td><td>{f.importance?.toFixed(4)}</td></tr>

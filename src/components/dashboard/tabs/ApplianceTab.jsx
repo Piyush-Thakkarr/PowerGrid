@@ -8,7 +8,7 @@ export default function ApplianceTab({ mock }) {
     const { data: fetched, loading, error } = useApplianceBreakdown(30, { skip: !!mock });
     const data = mock || fetched;
 
-    if (!mock && loading) return <div className="role-loading">Loading appliance breakdown…</div>;
+    if (!mock && loading) return <div className="role-loading">Working out where your power is going…</div>;
     if (!mock && error) return <div className="role-error">⚠ {error}</div>;
 
     const breakdown = data?.breakdown || [];
@@ -18,7 +18,7 @@ export default function ApplianceTab({ mock }) {
         <div className="role-stack">
             <div className="role-grid">
                 <div className="role-stat"><span className="role-stat-l">Total kWh (30d)</span><span className="role-stat-v">{data?.totalKwh?.toFixed(1) || '—'}</span></div>
-                <div className="role-stat"><span className="role-stat-l">Data points</span><span className="role-stat-v">{data?.dataPoints || '—'}</span></div>
+                <div className="role-stat"><span className="role-stat-l">Readings used</span><span className="role-stat-v">{data?.dataPoints || '—'}</span></div>
             </div>
 
             <div className="role-card">
@@ -37,11 +37,11 @@ export default function ApplianceTab({ mock }) {
 
             {components.length > 0 && (
                 <div className="role-card">
-                    <div className="role-card-head"><span className="role-card-title">NMF components · 24h activity profile</span></div>
+                    <div className="role-card-head"><span className="role-card-title">Hidden usage patterns · 24h profile</span></div>
                     <div className="role-stack">
-                        {components.map(c => (
+                        {components.map((c, i) => (
                             <div key={c.componentId}>
-                                <div className="role-card-meta" style={{ marginBottom: '.5rem' }}>Component #{c.componentId} · peak {c.peakHour}h</div>
+                                <div className="role-card-meta" style={{ marginBottom: '.5rem' }}>Pattern {i + 1} · busiest at {c.peakHour}:00</div>
                                 <ResponsiveContainer width="100%" height={100}>
                                     <AreaChart data={(c.hourlyProfile || []).map((v, i) => ({ hour: i, v }))}>
                                         <CartesianGrid stroke="rgba(255,255,255,0.05)" />
