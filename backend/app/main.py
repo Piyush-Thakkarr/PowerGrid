@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -34,17 +34,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-try:
-    from slowapi import Limiter, _rate_limit_exceeded_handler
-    from slowapi.util import get_remote_address
-    from slowapi.errors import RateLimitExceeded
-    limiter = Limiter(key_func=get_remote_address)
-    app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-except ImportError:
-    pass
-
-
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.time()
@@ -65,9 +54,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 # ── Routers ─────────────────────────────────────────
 from app.routers.auth import router as auth_router
 from app.routers.consumption import router as consumption_router
-from app.routers.billing import router as billing_router
-from app.routers.comparison import router as comparison_router
-from app.routers.gamification import router as gamification_router
 from app.routers.ml import router as ml_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.discom import router as discom_router
@@ -77,9 +63,6 @@ from app.routers.grid import router as grid_router
 for prefix, rtr, tag in [
     ("/api/v1/auth", auth_router, "auth"),
     ("/api/v1/consumption", consumption_router, "consumption"),
-    ("/api/v1/billing", billing_router, "billing"),
-    ("/api/v1/comparison", comparison_router, "comparison"),
-    ("/api/v1/gamification", gamification_router, "gamification"),
     ("/api/v1/ml", ml_router, "ml"),
     ("/api/v1/dashboard", dashboard_router, "dashboard"),
     ("/api/v1/discom", discom_router, "discom"),

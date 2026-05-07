@@ -37,7 +37,6 @@ class ProfileUpdateRequest(BaseModel):
     householdSize: Optional[int] = None
     state: Optional[str] = None
     tariffPlan: Optional[str] = None
-    discom: Optional[str] = None
 
     @field_validator("state")
     @classmethod
