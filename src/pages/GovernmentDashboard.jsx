@@ -12,9 +12,9 @@ import {
 
 const TABS = [
     { id: 'states', label: 'States', Icon: Map },
-    { id: 'segmentation', label: 'Segmentation', Icon: BarChart3 },
-    { id: 'tariff', label: 'Tariff Adoption', Icon: PieIcon },
-    { id: 'trend', label: 'Consumption Trend', Icon: TrendingUp },
+    { id: 'segmentation', label: 'Consumer Groups', Icon: BarChart3 },
+    { id: 'tariff', label: 'Plan Distribution', Icon: PieIcon },
+    { id: 'trend', label: 'Trend', Icon: TrendingUp },
 ];
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN'));
@@ -61,11 +61,11 @@ function SegmentationTab({ mock }) {
     const clusters = data?.clusters || [];
     return (
         <div className="role-stack">
-            {clusters.map(c => (
+            {clusters.map((c, idx) => (
                 <div key={c.clusterId} className="role-card">
                     <div className="role-card-head">
-                        <span className="role-card-title">Cluster #{c.clusterId}</span>
-                        <span className="role-card-meta">{fmt(c.userCount)} users · peak {c.peakHour}h · {c.dailyAvgKwh?.toFixed(2)} kWh/day</span>
+                        <span className="role-card-title">Group {String.fromCharCode(65 + idx)}</span>
+                        <span className="role-card-meta">{fmt(c.userCount)} consumers · busiest at {c.peakHour}:00 · {c.dailyAvgKwh?.toFixed(2)} kWh/day</span>
                     </div>
                     <div className="role-chart">
                         <ResponsiveContainer width="100%" height={140}>
@@ -92,7 +92,7 @@ function TariffTab({ mock }) {
     const rows = data?.distribution || [];
     return (
         <div className="role-card">
-            <div className="role-card-head"><span className="role-card-title">Tariff Adoption · State × Plan</span></div>
+            <div className="role-card-head"><span className="role-card-title">Plan Distribution · by State</span></div>
             <div className="role-table-wrap">
                 <table className="role-table">
                     <thead><tr><th>State</th><th>Plan</th><th>Users</th></tr></thead>

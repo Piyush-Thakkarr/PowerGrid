@@ -13,7 +13,7 @@ import {
 
 const TABS = [
     { id: 'overview', label: 'Overview', Icon: LayoutDashboard },
-    { id: 'segmentation', label: 'Segmentation', Icon: BarChart3 },
+    { id: 'segmentation', label: 'Customer Groups', Icon: BarChart3 },
     { id: 'demand', label: 'Demand', Icon: TrendingUp },
     { id: 'consumers', label: 'Consumers', Icon: Users },
     { id: 'revenue', label: 'Revenue', Icon: Receipt },
@@ -49,11 +49,11 @@ function SegmentationTab({ mock }) {
     const clusters = data?.clusters || [];
     return (
         <div className="role-stack">
-            {clusters.map(c => (
+            {clusters.map((c, idx) => (
                 <div key={c.clusterId} className="role-card">
                     <div className="role-card-head">
-                        <span className="role-card-title">Cluster #{c.clusterId}</span>
-                        <span className="role-card-meta">{fmt(c.userCount)} users · peak {c.peakHour}h · {c.dailyAvgKwh?.toFixed(2)} kWh/day avg</span>
+                        <span className="role-card-title">Group {String.fromCharCode(65 + idx)}</span>
+                        <span className="role-card-meta">{fmt(c.userCount)} consumers · busiest at {c.peakHour}:00 · {c.dailyAvgKwh?.toFixed(2)} kWh/day avg</span>
                     </div>
                     <div className="role-chart">
                         <ResponsiveContainer width="100%" height={140}>
